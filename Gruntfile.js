@@ -1,8 +1,14 @@
 module.exports = function(grunt) {
+  
+  var prefix = grunt.option('prefix') || 'dist/';
+  
+  var re_js_file = /^([^.]*)([.]min)*[.]js$/
+  
+  var pkg = grunt.file.readJSON('package.json'); 
 
   // Project configuration.
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json'),
+    pkg: pkg,
     
     clean: {
       options: {
@@ -28,7 +34,7 @@ module.exports = function(grunt) {
     
     browserify: {
       charts: {
-        files: {'build/main.js': ['src/main.js']},
+        files: {'build/main.js': ['src/js/main.js']},
       }, 
     },
     
@@ -36,16 +42,52 @@ module.exports = function(grunt) {
       options: {
         mode: '0644',
       },
-      'local-charts': {
+      charts: {
+        options: {
+          processContent: function (data, src) {
+            console.log(' **1* Pre-processing ' + src +' ...')
+            return grunt.template.process(data)
+          },
+          processContentExclude: ['build/*.js', 'build/*.min.js', 'assets/css/*.css'],
+        },
         files: [
           {
             expand: true,
-            flatten: true,
-            src: ['build/main*.js', 'assets/style.css'],
-            dest: grunt.option('deploy_path'),
+            filter: 'isFile',
+            cwd: 'build/',
+            src: 'main*.js',
+            dest: prefix,
+            rename: function (dest, src) {
+                return dest + (pkg.name + src.substr('main'.length));
+            },  
+          },
+          {
+            expand: true,
+            filter: 'isFile',
+            cwd: 'src/html/',
+            src: '*.html',
+            dest: prefix,
+            options: {
+                process: function (data, src) {
+                    return 'Hello (processed) World!!'
+                },
+            }
+          },
+          {
+            expand: true,
+            filter: 'isFile',
+            cwd: 'assets/',
+            src: '**',
+            dest: prefix,
           },
         ],
       }
+    },
+
+    deploy: {
+      options: {
+        prefix: 'dist',
+      },
     },
   });
 
@@ -57,10 +99,10 @@ module.exports = function(grunt) {
 
   grunt.registerTask('build', ['browserify', 'uglify']);
 
-  grunt.registerTask('deploy-local', ['copy:local-charts']);
+  grunt.registerTask('deploy', ['copy:charts']);
   
   grunt.registerTask('default', 'Greet', function () {
-    console.log('Hello Grunt!');
+    console.log('Hello from ' + grunt.template.process('<%=  pkg.name %>'))
+    console.log('Hello from ' + grunt.config.get('pkg').name)
   });
-
 };

@@ -1,7 +1,7 @@
 {
-  "name": "daiad-mobile-charts",
+  "name": "daiad-charts",
   "version": "1.0.0",
-  "description": "DAIAD/Mobile-Charts",
+  "description": "DAIAD/Charts",
   "main": "main.js",
   "scripts": {
     "test": "test.js"
