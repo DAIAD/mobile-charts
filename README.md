@@ -1,5 +1,6 @@
-# grunt-helloworld
-Examples with Grunt tasks in a javascript project
+# mobile-charts
+
+Provide convenience wrappers (around `jquery.flot`) for plotting consumption-related measurements on a mobile device.
 
 ## Quickstart 
 
@@ -11,7 +12,8 @@ Install all project dependencies:
 
     npm install
 
-Run a task (e.g. the 'build' composite task):
+Build and deploy (locally):
 
     grunt build
+    grunt deploy --prefix ~/var/www/charts
 
