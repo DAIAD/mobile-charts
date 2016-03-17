@@ -1,0 +1,18 @@
+body {
+    background-color: #E7F4FC;
+    font-family: "OpenSansCond", sans-serif;
+}
+
+.chart {
+    position: relative;
+    /* keep a ratio of 2.5 : 1 */
+    width: 580px;
+    height: 230px;
+    border: solid 1px silver;
+}
+
+.yAxis .tickLabel {
+    padding: 0px 3px 0px 0px;
+    ;
+}
+
