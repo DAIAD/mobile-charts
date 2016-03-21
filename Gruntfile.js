@@ -35,7 +35,8 @@ module.exports = function(grunt) {
     browserify: {
       charts: {
         files: {'build/main.js': ['src/js/main.js']},
-      }, 
+      },
+
     },
     
     copy: {
@@ -48,7 +49,12 @@ module.exports = function(grunt) {
             console.log(' **1* Pre-processing ' + src +' ...')
             return grunt.template.process(data)
           },
-          processContentExclude: ['build/*.js', 'build/*.min.js', 'assets/css/*.css'],
+          processContentExclude: [
+            'build/*.js',
+            'build/*.min.js',
+            'assets/*.css',
+            'assets/fonts/**'
+          ],
         },
         files: [
           {
