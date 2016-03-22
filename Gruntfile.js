@@ -29,14 +29,23 @@ module.exports = function(grunt) {
         files: { 
           'build/main.min.js': ['build/main.js'],
         },
+      },
+      moment: {
+        files: {
+          'build/moment-localized.min.js': ['build/moment-localized.js'],
+        }
       }
     },
     
     browserify: {
       charts: {
-        files: {'build/main.js': ['src/js/main.js']},
+        files: {
+          'build/main.js': ['src/js/main.js']},
       },
-
+      moment: {
+        files: {
+          'build/moment-localized.js': ['vendor/moment-localized.js']},
+      },
     },
     
     copy: {
@@ -70,14 +79,16 @@ module.exports = function(grunt) {
           {
             expand: true,
             filter: 'isFile',
+            cwd: 'build/',
+            src: 'moment-localized*.js',
+            dest: prefix,
+          },
+          {
+            expand: true,
+            filter: 'isFile',
             cwd: 'src/html/',
             src: '*.html',
             dest: prefix,
-            options: {
-                process: function (data, src) {
-                    return 'Hello (processed) World!!'
-                },
-            }
           },
           {
             expand: true,
