@@ -150,6 +150,7 @@ charts.meter = (function () {
             var resolution = config.resolution || 1; // hours
             var bar_width_ratio = config.bars.widthRatio || 0.6; // as part of bucket 
             var tick_size = config.xaxis.tickSize || 4; // 1 tick every tick_size datapoints
+            var locale = config.locale
 
             var options = {
                 series: {
@@ -160,12 +161,10 @@ charts.meter = (function () {
                 },
                 xaxis: $.extend({}, plotOptions.defaults.xaxis, {
                     ticks: $.map(data, function(v, i) {
-                        return (i % tick_size == 0) ? [
-                            [
-                                v.id + (bar_width_ratio / 2.0),
-                                moment(v.timestamp.getTime()).format('ha')
-                            ]
-                        ] : null;
+                        var t = v.timestamp.getTime(),
+                            tm = (locale)? moment(t).locale(locale) : moment(t);
+                        return (i % tick_size == 0) ?
+                            [[v.id + (bar_width_ratio / 2.0), tm.format('ha')]] : null;
                     }),
                     min: 0,
                     max: data.length,
@@ -203,6 +202,7 @@ charts.meter = (function () {
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
             var resolution = config.resolution || 1; // days
             var bar_width_ratio = config.bars.widthRatio || 0.6; // as part of bucket 
+            var locale = config.locale;
             
             var options = {
                 series: {
@@ -213,10 +213,9 @@ charts.meter = (function () {
                 },
                 xaxis: $.extend({}, plotOptions.defaults.xaxis, {
                     ticks: $.map(data, function(v, i) {
-                        return [[
-                            v.id + (bar_width_ratio / 2.0),
-                            moment(v.timestamp.getTime()).format('dd')
-                        ]];
+                        var t = v.timestamp.getTime(),
+                            tm = (locale)? moment(t).locale(locale) : moment(t);
+                        return [[v.id + (bar_width_ratio / 2.0), tm.format('dd')]];
                     }),
                     min: 0,
                     max: data.length,
@@ -254,6 +253,7 @@ charts.meter = (function () {
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
             var resolution = config.resolution || 1; // days
             var weeks_in_month = 5; // partially
+            var locale = config.locale;
             
             var options = {
                 series: {
@@ -263,8 +263,9 @@ charts.meter = (function () {
                 },
                 xaxis: $.extend({}, plotOptions.defaults.xaxis, {
                     // Generate a tick for the beggining of each week 
-                    ticks: $.map(new Array(weeks_in_month - 1), function(_, i) {
-                        return [[(((i + 1) * 7) / resolution), 'Week ' + (i + 1)]];
+                    ticks: $.map(new Array(weeks_in_month - 1), function(_, k) {
+                        var x = (((k + 1) * 7) / resolution);
+                        return [[x, (config.weekLabel || 'week') + (k + 1).toString()]];
                     }),
                     min: 0,
                     max: data.length,
@@ -298,6 +299,7 @@ charts.meter = (function () {
             
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
             var resolution = config.resolution || 1; // months
+            var locale = config.locale;
             var month_names = moment.monthsShort();
             
             var options = {

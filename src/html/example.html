@@ -2,31 +2,77 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <!-- External -->
+  <!-- External dependencies (CDN) -->
   <script src="//code.jquery.com/jquery-1.12.1.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.js"></script>
   <!--<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js"></script>-->
   <!--<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.12.0/moment-with-locales.min.js"></script>-->
+  <!-- External optional (CDN) -->
+  <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"/>
   <!-- Local -->
-  <script src="<%= pkg.name %>.min.js"></script> 
-  <script src="moment-localized.min.js"></script> 
-  <link rel="stylesheet" href="fonts.css">
-  <link rel="stylesheet" href="style.css">
+  <script src="<%= pkg.name %>.js"></script> 
+  <script src="moment-localized.min.js"></script> <!-- bundle with a subset of locales --> 
+  <link rel="stylesheet" href="fonts.css"/>
+  <link rel="stylesheet" href="style.css"/>
+
+  <style>
+    .page {
+        margin: 25px 15px;
+        font-size: 16px;    
+    }
+    .nav {
+        border-bottom: solid 2px #337AB7;
+    }
+    .nav > li {
+        font-size: 1.4em;
+        font-weight: bold;
+        border-radius: 1px;
+    }
+    .nav > li > a {
+        border-radius: 1px;
+    }
+  </style>
 </head>
 
 <body>
-  <h3>Chart - Day View</h3>
-  <div class="chart" id="chart-day-view"></div>
+ 
+ <div class="page container-fluid"> 
+   <div class="row">
+      <div class="col-md-9">
+        <ul class="nav nav-pills">
+          <li class="active"><a data-toggle="pill" href="#meter-charts-tab">Meter Charts</a></li>
+          <li class=""><a data-toggle="pill" href="#b1-charts-tab">B1 Charts</a></li>
+        </ul> <!-- .nav -->
+ 
+        <div class="tab-content">
+          
+          <!-- Meter Charts -->
+          <div id="meter-charts-tab" class="tab-pane in active">
+            <h3>Day View</h3>
+            <div class="chart" id="meter-chart-day-view"></div>
 
-  <h3>Chart - Week View</h3>
-  <div class="chart" id="chart-week-view"></div>
+            <h3>Week View</h3>
+            <div class="chart" id="meter-chart-week-view"></div>
 
-  <h3>Chart - Month View</h3>
-  <div class="chart" id="chart-month-view"></div>
+            <h3>Month View</h3>
+            <div class="chart" id="meter-chart-month-view"></div>
 
-  <h3>Chart - Year View</h3>
-  <div class="chart" id="chart-year-view"></div>
+            <h3>Year View</h3>
+            <div class="chart" id="meter-chart-year-view"></div>
+          </div> <!-- #meter-charts-tab -->
 
+          <!-- B1 Charts -->
+          <div id="b1-charts-tab" class="tab-pane">
+            <h3>Todo B1 ...</h3>
+         </div> <!-- #b1-charts-tab -->
+
+       </div> <!-- .tab-content -->
+
+      </div> <!-- column -->
+    </div> <!-- row -->
+  </div>
+  
 </body>
 
 <script type="text/javascript">
@@ -38,6 +84,14 @@
         console.info(daiad.VERSION);
                 
         var data = null;
+        
+        var qs = new Map($.map(
+            window.location.search.replace(/^[?]/, '').split('&'),
+            function (v) { return [v.split('=')]}))
+        var locale = qs.get('locale') || 'en'
+        moment.locale(locale);
+        console.info('Using locale: ' + locale);
+
 
         //
         // Day
@@ -78,7 +132,7 @@
         ]
 
         data = getDataForDay(50, 200, 1); 
-        charts.meter.plotForDay($('#chart-day-view'), data, {
+        charts.meter.plotForDay($('#meter-chart-day-view'), data, {
             resolution: 1, // hours
             levels: levels,
         });
@@ -99,7 +153,7 @@
         }
 
         data = getDataForWeek(50, 200, 1);
-        charts.meter.plotForWeek($('#chart-week-view'), data, {
+        charts.meter.plotForWeek($('#meter-chart-week-view'), data, {
             resolution: 1, // days
             levels: null,
         });
@@ -120,7 +174,7 @@
         }
         
         data = getDataForMonth(50, 200, 2);
-        charts.meter.plotForMonth($('#chart-month-view'), data, {
+        charts.meter.plotForMonth($('#meter-chart-month-view'), data, {
             resolution: 2, // days
         });
 
@@ -140,7 +194,7 @@
         }
         
         data = getDataForYear(50, 200, 1);
-        charts.meter.plotForYear($('#chart-year-view'), data, {
+        charts.meter.plotForYear($('#meter-chart-year-view'), data, {
             resolution: 1, // months
         });
 

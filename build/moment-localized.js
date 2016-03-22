@@ -3950,4 +3950,6 @@ require('moment/locale/es')
 require('moment/locale/el')
 require('moment/locale/de')
 
+moment.locale('en')
+
 },{"moment":4,"moment/locale/de":1,"moment/locale/el":2,"moment/locale/es":3}]},{},[5]);
