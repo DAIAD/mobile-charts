@@ -1,21 +1,192 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 var charts = require('./charts')
 
-charts.b1 = {
-    version: '0.1a',
-};
+var model = require('./model')
+
+charts.b1 = (function () {
+    
+    var plotOptions = $.extend({}, charts.plotOptions);
+    plotOptions.defaults.colors = ['#2D3580'];
+    plotOptions.defaults.colormap = new Map([
+        ['default', '#2D3580'],
+        ['measured-data', '#2D3580'],
+        ['estimated-data', '#AAAEB1'],
+    ]);
+    
+    var formatLabel = charts.formatLabel;
+
+    function getDefaultLevel(y0, y1)
+    {
+        return {
+           range: [y0, y1 + 1],
+           color: plotOptions.defaults.colors[0],
+        };
+    };
+
+    return {
+        plotForMinutes: function($placeholder, data, config)
+        {
+            // Todo
+        },
+        plotForDay: function($placeholder, data, config)
+        {
+            // Todo
+        },
+        plotForWeek: function($placeholder, data1, data2, config)
+        {
+            // Note:
+            // param data1: measured (aka realtime) data
+            // param data2: estimated data
+
+            var n1 = (data1 && data1.length)? (data1.length) : 0,
+                n2 = (data2 && data2.length)? (data2.length) : 0;
+
+            if (!(n1 > 0 || n2 > 0))
+                return null;
+
+            var M1 = (n1 > 0)? (data1[0].constructor) : (null),
+                M2 = (n2 > 0)? (data2[0].constructor) : (null),
+                ry1 = M1.calcRange(data1),
+                ry2 = M2.calcRange(data2),
+                miny = Math.min(ry1[0], ry2[0]),
+                maxy = Math.max(ry1[1], ry2[1]),
+                ry = [miny, maxy],
+                dy = maxy - miny,
+                n = Math.max(n1, n2); 
+            
+            config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
+            var resolution = config.resolution || 1; // days
+            var bar_width_ratio = config.bars.widthRatio || 0.6; // as part of bucket 
+            var locale = config.locale;
+            
+            var options = {
+                series: {
+                    points: {show: false},
+                    shadowSize: 0,
+                    lines: {show: false},
+                    bars: $.extend({show: true}, plotOptions.defaults.series.bars),
+                },
+                xaxis: $.extend({}, plotOptions.defaults.xaxis, {
+                    ticks: $.map(data1, function(v, i) {
+                        var t = v.timestamp.getTime(),
+                            tm = (locale)? moment(t).locale(locale) : moment(t);
+                        return [[v.id + (bar_width_ratio / 2.0), tm.format('dd')]];
+                    }),
+                    min: 0,
+                    max: n,
+                }),
+                yaxis: $.extend({}, plotOptions.defaults.yaxis, {
+                    ticks: charts.generateTicks(ry, 4, 10),
+                    min: miny - 0.15 * dy,
+                    max: maxy + 0.15 * dy,
+                }),
+                grid: plotOptions.defaults.grid,
+                legend: {show: false, position: 'ne'},
+                bars: $.extend({}, plotOptions.defaults.bars, {barWidth: bar_width_ratio}),
+            };
+           
+            var plotdata = [];
+            
+            if (n1 > 0) 
+                plotdata.push({
+                    data: data1,
+                    label: formatLabel(M1),
+                    color: plotOptions.defaults.colormap.get('measured-data'),
+                });
+            if (n2 > 0) 
+                plotdata.push({
+                    data: data1,
+                    label: formatLabel(M2),
+                    color: plotOptions.defaults.colormap.get('estimated-data'),
+                });
+
+            return $.plot($placeholder, plotdata, options);
+        },
+        plotForMonth: function($placeholder, data, config)
+        {
+            // Todo
+        },
+        plotForYear: function($placeholder, data, config)
+        {
+            // Todo
+        },
+    };
+})(); 
 
 module.exports = charts.b1;
 
-},{"./charts":2}],2:[function(require,module,exports){
+},{"./charts":2,"./model":6}],2:[function(require,module,exports){
 var daiad = require('./index')
 
 daiad.charts || (daiad.charts = {});
 
-// Utilities
-
 $.extend(daiad.charts, {
+    
+    // Defaults
 
+    plotOptions: {
+        defaults: {
+            series: {
+                points: {
+                    radius: 2,
+                },
+                lines: {
+                    lineWidth: 1,
+                },
+                bars: {
+                    lineWidth: 1,
+                    fill: 0.8,
+                },
+            },
+            bars: {
+                align: 'left',
+                horizontal: false,
+            },
+            xaxis: {
+                tickLength: 0,
+                tickColor: '#bbb',
+            },
+            yaxis: {
+                tickLength: 0,
+                tickColor: '#bbb',
+            },
+            grid: {
+                color: '#bbb',
+                backgroundColor: null,
+                margin: {
+                    top: 15,
+                    bottom: 10,
+                    left: 20,
+                    right: 10
+                },
+                borderWidth: {
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    left: 0
+                },
+            },
+        },
+    },
+
+    // Utilities
+    
+    formatLabel: function(M, level)
+    {
+        var s = M.value.title + ' (' + M.value.unit + ')';
+        if (level && level.description)
+            s += ' (' + level.description + ')'; 
+        return s;
+    },
+
+    filterForData: function(level)
+    {
+        var y0 = level.range[0], y1 = level.range[1];
+        return function (m) {
+            return (m.value != null && (m.value >= y0) && (m.value < y1)) ? [[m.id, m.value]] : null;
+        }
+    },
+    
     generateTicks: function (r, n, m, precision) {
         // Generate approx n ticks in range r. Use only multiples of m.
         var dx = r[1] - r[0],
@@ -66,72 +237,16 @@ var model = require('./model')
 
 charts.meter = (function () {
     
-    var plotOptions = {
-        defaults: {
-            colors: ['#2D3580'],
-            series: {
-                points: {
-                    radius: 2,
-                },
-                lines: {
-                    lineWidth: 1,
-                },
-                bars: {
-                    lineWidth: 1,
-                    fill: 0.8,
-                },
-            },
-            bars: {
-                align: 'left',
-                horizontal: false,
-            },
-            xaxis: {
-                tickLength: 0,
-                tickColor: '#bbb',
-            },
-            yaxis: {
-                tickLength: 0,
-                tickColor: '#bbb',
-            },
-            grid: {
-                color: '#bbb',
-                backgroundColor: null,
-                margin: {
-                    top: 15,
-                    bottom: 10,
-                    left: 20,
-                    right: 10
-                },
-                borderWidth: {
-                    top: 0,
-                    right: 0,
-                    bottom: 0,
-                    left: 0
-                },
-            },
-        },
-    };
-    
-    function formatLabel(M, level)
-    {
-        var s = M.value.title + ' (' + M.value.unit + ')';
-        if (level && level.description)
-            s += ' (' + level.description + ')'; 
-        return s;
-    };
+    var plotOptions = $.extend({}, charts.plotOptions);
+    plotOptions.defaults.colors = ['#2D3580'];
 
-    function filterForData(level)
-    {
-        var y0 = level.range[0], y1 = level.range[1];
-        return function (m) {
-            return (m.value != null && (m.value >= y0) && (m.value < y1)) ? [[m.id, m.value]] : null;
-        }
-    };
-    
-    function getDefaultLevel(miny, maxy)
+    var formatLabel = charts.formatLabel, 
+        filterForData = charts.filterForData;
+
+    function getDefaultLevel(y0, y1)
     {
         return {
-           range: [miny, maxy + 1],
+           range: [y0, y1 + 1],
            color: plotOptions.defaults.colors[0],
         };
     };
@@ -170,7 +285,7 @@ charts.meter = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks([miny, maxy], 4, 10),
+                    ticks: charts.generateTicks(ry, 4, 10),
                     min: miny - 0.15 * dy,
                     max: maxy + 0.15 * dy,
                 }),
@@ -221,7 +336,7 @@ charts.meter = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks([miny, maxy], 4, 10),
+                    ticks: charts.generateTicks(ry, 4, 10),
                     min: miny - 0.15 * dy,
                     max: maxy + 0.15 * dy,
                 }),
@@ -265,13 +380,13 @@ charts.meter = (function () {
                     // Generate a tick for the beggining of each week 
                     ticks: $.map(new Array(weeks_in_month - 1), function(_, k) {
                         var x = (((k + 1) * 7) / resolution);
-                        return [[x, (config.weekLabel || 'week') + (k + 1).toString()]];
+                        return [[x, (config.weekLabel || 'week') + ' ' + (k + 1).toString()]];
                     }),
                     min: 0,
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks([miny, maxy], 4, 10),
+                    ticks: charts.generateTicks(ry, 4, 10),
                     min: miny - 0.15 * dy,
                     max: maxy + 0.15 * dy,
                 }),
@@ -316,7 +431,7 @@ charts.meter = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks([miny, maxy], 4, 10),
+                    ticks: charts.generateTicks(ry, 4, 10),
                     min: miny - 0.15 * dy,
                     max: maxy + 0.15 * dy,
                 }),
@@ -377,6 +492,9 @@ $.extend(daiad.model, (function () {
         // Class methods
         calcRange: function (data) 
         {
+            if (!(data && data.length > 0))
+                return [-Infinity, +Infinity];
+
             var g = function (m) { return m.value };
             var miny = Math.min.apply(null, $.map(data, g)), 
                 maxy = Math.max.apply(null, $.map(data, g));

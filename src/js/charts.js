@@ -2,10 +2,73 @@ var daiad = require('./index')
 
 daiad.charts || (daiad.charts = {});
 
-// Utilities
-
 $.extend(daiad.charts, {
+    
+    // Defaults
 
+    plotOptions: {
+        defaults: {
+            series: {
+                points: {
+                    radius: 2,
+                },
+                lines: {
+                    lineWidth: 1,
+                },
+                bars: {
+                    lineWidth: 1,
+                    fill: 0.8,
+                },
+            },
+            bars: {
+                align: 'left',
+                horizontal: false,
+            },
+            xaxis: {
+                tickLength: 0,
+                tickColor: '#bbb',
+            },
+            yaxis: {
+                tickLength: 0,
+                tickColor: '#bbb',
+            },
+            grid: {
+                color: '#bbb',
+                backgroundColor: null,
+                margin: {
+                    top: 15,
+                    bottom: 10,
+                    left: 20,
+                    right: 10
+                },
+                borderWidth: {
+                    top: 0,
+                    right: 0,
+                    bottom: 0,
+                    left: 0
+                },
+            },
+        },
+    },
+
+    // Utilities
+    
+    formatLabel: function(M, level)
+    {
+        var s = M.value.title + ' (' + M.value.unit + ')';
+        if (level && level.description)
+            s += ' (' + level.description + ')'; 
+        return s;
+    },
+
+    filterForData: function(level)
+    {
+        var y0 = level.range[0], y1 = level.range[1];
+        return function (m) {
+            return (m.value != null && (m.value >= y0) && (m.value < y1)) ? [[m.id, m.value]] : null;
+        }
+    },
+    
     generateTicks: function (r, n, m, precision) {
         // Generate approx n ticks in range r. Use only multiples of m.
         var dx = r[1] - r[0],

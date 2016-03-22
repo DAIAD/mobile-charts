@@ -36,6 +36,9 @@ $.extend(daiad.model, (function () {
         // Class methods
         calcRange: function (data) 
         {
+            if (!(data && data.length > 0))
+                return [-Infinity, +Infinity];
+
             var g = function (m) { return m.value };
             var miny = Math.min.apply(null, $.map(data, g)), 
                 maxy = Math.max.apply(null, $.map(data, g));

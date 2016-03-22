@@ -4,72 +4,16 @@ var model = require('./model')
 
 charts.meter = (function () {
     
-    var plotOptions = {
-        defaults: {
-            colors: ['#2D3580'],
-            series: {
-                points: {
-                    radius: 2,
-                },
-                lines: {
-                    lineWidth: 1,
-                },
-                bars: {
-                    lineWidth: 1,
-                    fill: 0.8,
-                },
-            },
-            bars: {
-                align: 'left',
-                horizontal: false,
-            },
-            xaxis: {
-                tickLength: 0,
-                tickColor: '#bbb',
-            },
-            yaxis: {
-                tickLength: 0,
-                tickColor: '#bbb',
-            },
-            grid: {
-                color: '#bbb',
-                backgroundColor: null,
-                margin: {
-                    top: 15,
-                    bottom: 10,
-                    left: 20,
-                    right: 10
-                },
-                borderWidth: {
-                    top: 0,
-                    right: 0,
-                    bottom: 0,
-                    left: 0
-                },
-            },
-        },
-    };
-    
-    function formatLabel(M, level)
-    {
-        var s = M.value.title + ' (' + M.value.unit + ')';
-        if (level && level.description)
-            s += ' (' + level.description + ')'; 
-        return s;
-    };
+    var plotOptions = $.extend({}, charts.plotOptions);
+    plotOptions.defaults.colors = ['#2D3580'];
 
-    function filterForData(level)
-    {
-        var y0 = level.range[0], y1 = level.range[1];
-        return function (m) {
-            return (m.value != null && (m.value >= y0) && (m.value < y1)) ? [[m.id, m.value]] : null;
-        }
-    };
-    
-    function getDefaultLevel(miny, maxy)
+    var formatLabel = charts.formatLabel, 
+        filterForData = charts.filterForData;
+
+    function getDefaultLevel(y0, y1)
     {
         return {
-           range: [miny, maxy + 1],
+           range: [y0, y1 + 1],
            color: plotOptions.defaults.colors[0],
         };
     };
@@ -108,7 +52,7 @@ charts.meter = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks([miny, maxy], 4, 10),
+                    ticks: charts.generateTicks(ry, 4, 10),
                     min: miny - 0.15 * dy,
                     max: maxy + 0.15 * dy,
                 }),
@@ -159,7 +103,7 @@ charts.meter = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks([miny, maxy], 4, 10),
+                    ticks: charts.generateTicks(ry, 4, 10),
                     min: miny - 0.15 * dy,
                     max: maxy + 0.15 * dy,
                 }),
@@ -209,7 +153,7 @@ charts.meter = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks([miny, maxy], 4, 10),
+                    ticks: charts.generateTicks(ry, 4, 10),
                     min: miny - 0.15 * dy,
                     max: maxy + 0.15 * dy,
                 }),
@@ -254,7 +198,7 @@ charts.meter = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks([miny, maxy], 4, 10),
+                    ticks: charts.generateTicks(ry, 4, 10),
                     min: miny - 0.15 * dy,
                     max: maxy + 0.15 * dy,
                 }),
