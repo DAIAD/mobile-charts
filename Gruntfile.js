@@ -33,6 +33,7 @@ module.exports = function(grunt) {
       moment: {
         files: {
           'build/moment-localized.min.js': ['build/moment-localized.js'],
+          'build/moment.min.js': ['build/moment.js'],
         }
       }
     },
@@ -44,7 +45,9 @@ module.exports = function(grunt) {
       },
       moment: {
         files: {
-          'build/moment-localized.js': ['vendor/moment-localized.js']},
+          'build/moment-localized.js': ['vendor/moment-localized.js'],
+          'build/moment.js': ['vendor/moment.js']
+        },
       },
     },
     
@@ -80,7 +83,7 @@ module.exports = function(grunt) {
             expand: true,
             filter: 'isFile',
             cwd: 'build/',
-            src: 'moment-localized*.js',
+            src: 'moment*.js',
             dest: prefix,
           },
           {
