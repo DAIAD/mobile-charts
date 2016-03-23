@@ -27,7 +27,7 @@ module.exports = function(grunt) {
       },
       charts: {
         files: { 
-          'build/main.min.js': ['build/main.js'],
+          'build/daiad-charts.min.js': ['build/daiad-charts.js'],
         },
       },
       moment: {
@@ -41,7 +41,7 @@ module.exports = function(grunt) {
     browserify: {
       charts: {
         files: {
-          'build/main.js': ['src/js/main.js']},
+          'build/daiad-charts.js': ['src/js/main.js']},
       },
       moment: {
         files: {
@@ -73,11 +73,8 @@ module.exports = function(grunt) {
             expand: true,
             filter: 'isFile',
             cwd: 'build/',
-            src: 'main*.js',
+            src: 'daiad-charts*.js',
             dest: prefix,
-            rename: function (dest, src) {
-                return dest + (pkg.name + src.substr('main'.length));
-            },  
           },
           {
             expand: true,
