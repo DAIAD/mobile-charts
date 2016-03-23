@@ -3,7 +3,9 @@ var daiad = require('./index')
 daiad.charts || (daiad.charts = {});
 
 $.extend(daiad.charts, {
-    
+   
+    WEEKS_IN_MONTH: 5, // partially
+
     // Defaults
 
     plotOptions: {
