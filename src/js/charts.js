@@ -69,6 +69,11 @@ $.extend(daiad.charts, {
         }
     },
     
+    getDefaultLevel: function(y0, y1, color)
+    {
+        return {range: [y0, y1 + 1], color: color};
+    },
+
     generateTicks: function (r, n, m, precision) {
         // Generate approx n ticks in range r. Use only multiples of m.
         var dx = r[1] - r[0],

@@ -33,7 +33,7 @@ module.exports = function(grunt) {
       moment: {
         files: {
           'build/moment-localized.min.js': ['build/moment-localized.js'],
-          'build/moment.min.js': ['build/moment.js'],
+          //'build/moment.min.js': ['build/moment.js'],
         }
       }
     },
@@ -46,7 +46,7 @@ module.exports = function(grunt) {
       moment: {
         files: {
           'build/moment-localized.js': ['vendor/moment-localized.js'],
-          'build/moment.js': ['vendor/moment.js']
+          //'build/moment.js': ['vendor/moment.js']
         },
       },
     },
@@ -104,6 +104,13 @@ module.exports = function(grunt) {
       }
     },
 
+    watch: {
+      charts: {
+         files: ['src/js/**.js', 'src/html/**.html', 'assets/style.css'],
+         tasks: ['build', 'deploy'],
+      },
+    },
+    
     deploy: {
       options: {
         prefix: 'dist',
@@ -115,6 +122,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-uglify');
+  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-browserify');
 
   grunt.registerTask('build', ['browserify', 'uglify']);

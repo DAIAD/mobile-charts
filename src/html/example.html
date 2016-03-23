@@ -42,7 +42,7 @@
       <div class="col-md-9">
         <ul class="nav nav-pills">
           <li class=""><a data-toggle="pill" href="#meter-charts-tab">Meter Charts</a></li>
-          <li class="active"><a data-toggle="pill" href="#b1-charts-tab">B1 Charts</a></li>
+          <li class=""><a data-toggle="pill" href="#b1-charts-tab">B1 Charts</a></li>
         </ul> <!-- .nav -->
  
         <div class="tab-content">
@@ -63,7 +63,7 @@
           </div> <!-- #meter-charts-tab -->
 
           <!-- B1 Charts -->
-          <div id="b1-charts-tab" class="tab-pane active">
+          <div id="b1-charts-tab" class="tab-pane">
             <h3>Week View</h3>
             <div class="chart" id="b1-chart-week-view"></div>
          </div> <!-- #b1-charts-tab -->
@@ -77,25 +77,27 @@
 </body>
 
 <script type="text/javascript">
+   
+    var charts = daiad.charts;
+    var Measurement = daiad.model.Measurement;
+
+    console.info(daiad.VERSION);
+    
+    var qs = new Map($.map(
+        window.location.search.replace(/^[?]/, '').split('&'),
+        function (v) { return [v.split('=')]}))
+    var locale = qs.get('locale') || 'en'
+    moment.locale(locale);
+    console.info('Using locale: ' + locale);
+
     $(document).ready(function () {
+        $('[href="#b1-charts-tab"]').tab('show');
+    })
+    
+    $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
         
-        var charts = daiad.charts;
-        var Measurement = daiad.model.Measurement;
-
-        console.info(daiad.VERSION);
-                
-        var data = null,
-            real_data = null, /* realtime (measured) data points */
-            comp_data = null; /* historical (computed) data points */
+        var data = null;
         
-        var qs = new Map($.map(
-            window.location.search.replace(/^[?]/, '').split('&'),
-            function (v) { return [v.split('=')]}))
-        var locale = qs.get('locale') || 'en'
-        moment.locale(locale);
-        console.info('Using locale: ' + locale);
-
-
         //
         // Meter - Day
         //
@@ -200,16 +202,23 @@
         charts.meter.plotForYear($('#meter-chart-year-view'), data, {
             resolution: 1, // months
         });
+    });
+
+    $('[href="#b1-charts-tab"]').one('shown.bs.tab', function () {
+        var data = null,
+            real_data = null, /* realtime (measured) data points */
+            comp_data = null; /* historical (computed) data points */
 
         //
         // B1 - Week
         //
 
+        // Generate 2 series with complementary data points
         function getB1DataSeriesForWeek(miny, maxy, resolution) {
            var dy = maxy - miny;
            var now = moment(), t0 = moment().startOf('isoweek');
            var n = 7;
-           var choices1 = $.map(new Array(n), function () {return (Math.random() < 0.3);});
+           var choices1 = $.map(new Array(n), function () {return (Math.random() < 0.4);});
            var genSample = function(i, t) {return (miny + Math.random() * dy);};
            var data1 = [], data2 = [];
            for (var i=0; i<n; i++) {
@@ -231,13 +240,20 @@
             var res = getB1DataSeriesForWeek(50, 200, 1);
             real_data = res[0]; comp_data = res[1];
         })()
-        console.log(real_data);
-        console.log(comp_data)
+       
+        var pad = function(s, n) {return (' '.repeat(n) + s.toString()).slice(-n)}
+        var dump
+        dump = $.map(real_data, function (m) {return pad(m.value? m.value.toFixed(1) : 'NULL', 8)}).join()
+        console.log('R: ' + dump)
+        dump = $.map(comp_data, function (m) {return pad(m.value? m.value.toFixed(1) : 'NULL', 8)}).join()
+        console.log('C: ' + dump)
+
         charts.b1.plotForWeek($('#b1-chart-week-view'), real_data, comp_data, {
             resolution: 1, // days
         });
-
+        
     });
+    
 </script>
 
 </html>

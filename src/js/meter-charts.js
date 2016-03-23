@@ -12,10 +12,7 @@ charts.meter = (function () {
 
     function getDefaultLevel(y0, y1)
     {
-        return {
-           range: [y0, y1 + 1],
-           color: plotOptions.defaults.colors[0],
-        };
+        return charts.getDefaultLevel(y0, y1, plotOptions.defaults.colors[0]);
     };
 
     return {

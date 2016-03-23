@@ -15,14 +15,6 @@ charts.b1 = (function () {
     
     var formatLabel = charts.formatLabel;
 
-    function getDefaultLevel(y0, y1)
-    {
-        return {
-           range: [y0, y1 + 1],
-           color: plotOptions.defaults.colors[0],
-        };
-    };
-
     return {
         plotForMinutes: function($placeholder, data, config)
         {
@@ -87,18 +79,42 @@ charts.b1 = (function () {
            
             var plotdata = [];
             
-            if (n1 > 0) 
+            if (n1 > 0) {
+                var points1 = $.map(data1, function (m, i) {return [[i, m.value]]});
                 plotdata.push({
-                    data: data1,
+                    data: points1,
                     label: formatLabel(M1),
                     color: plotOptions.defaults.colormap.get('measured-data'),
                 });
-            if (n2 > 0) 
-                plotdata.push({
-                    data: data1,
-                    label: formatLabel(M2),
-                    color: plotOptions.defaults.colormap.get('estimated-data'),
-                });
+            }
+            // Plot successive data points in data2 (same value, interpolated between 
+            // data points of data1) as 1 continous bar
+            if (n2 > 0) {
+                var points2 = [], i = 0;
+                while (i < n2) {
+                    if (data2[i].value == null) {
+                        i++;
+                        continue;
+                    }
+                    // Compute span of this data2 value (until next non-null value of data1)
+                    var j = i + 1, span = null;
+                    while (j < n1 && data1[j].value == null) j++;
+                    span = (j == n1)? (n2 - i) : (j - i);
+                    plotdata.push({
+                        data: [[i, data2[i].value]],
+                        label: formatLabel(M2),
+                        color: plotOptions.defaults.colormap.get('estimated-data'),
+                        bars: {barWidth: bar_width_ratio + span - 1},
+                    })
+                    i = j;
+                }
+                //plotdata.push({
+                //    data: $.map(data2, function (m, i) {return [[i, m.value]]}) ,
+                //    label: formatLabel(M2),
+                //    color: 'orange',
+                //    bars: {fill: 0.1},
+                //});
+            }
 
             return $.plot($placeholder, plotdata, options);
         },
@@ -187,6 +203,11 @@ $.extend(daiad.charts, {
         }
     },
     
+    getDefaultLevel: function(y0, y1, color)
+    {
+        return {range: [y0, y1 + 1], color: color};
+    },
+
     generateTicks: function (r, n, m, precision) {
         // Generate approx n ticks in range r. Use only multiples of m.
         var dx = r[1] - r[0],
@@ -245,10 +266,7 @@ charts.meter = (function () {
 
     function getDefaultLevel(y0, y1)
     {
-        return {
-           range: [y0, y1 + 1],
-           color: plotOptions.defaults.colors[0],
-        };
+        return charts.getDefaultLevel(y0, y1, plotOptions.defaults.colors[0]);
     };
 
     return {
