@@ -16,9 +16,57 @@ charts.b1 = (function () {
     var formatLabel = charts.formatLabel;
 
     return {
-        plotForMinutes: function($placeholder, data, config)
-        {
-            // Todo
+        plotForEvent: function($placeholder, data, config)
+        {   
+            if (!data || data.length == 0)
+                return null;
+
+            var M = data[0].constructor,
+                ry = M.calcRange(data),
+                miny = ry[0],
+                maxy = ry[1],
+                dy = maxy - miny,
+                ts = data[0].timestamp.getTime(),
+                te = data[data.length - 1].timestamp.getTime(),
+                dt = te - ts,
+                minx = ts - Math.floor(0.15 * dt),
+                maxx = te + Math.floor(0.15 * dt),
+                rx = [minx, maxx];
+
+            config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
+
+            var options = {
+                series: {
+                    points: {show: false, radius: 1},
+                    shadowSize: 0,
+                    lines: $.extend({show: true}, plotOptions.defaults.series.lines, {fill: 0.4}),
+                },
+                xaxis: $.extend({}, plotOptions.defaults.xaxis, {
+                    // Display xaxis ticks at multiples of minutes
+                    ticks: charts.generateTicks(rx, (config.xaxis.ticks || 5), 5 * 60 * 1000, function (x) {
+                        return moment(x).format('hh:mm a')
+                    }),
+                    tickLength: 9, 
+                    min: minx,
+                    max: maxx,
+                }),
+                yaxis: $.extend({}, plotOptions.defaults.yaxis, {
+                    ticks: charts.generateTicks(ry, 4, 10),
+                    min: miny - 0.15 * dy,
+                    max: maxy + 0.15 * dy,
+                }),
+                grid: plotOptions.defaults.grid,
+                legend: {show: false},
+            };
+            
+            return $.plot($placeholder, [{
+                data: $.map(data, function(v) {
+                    return (v.value) ? [[v.timestamp.getTime(), v.value]] : null;
+                }),
+                label: formatLabel(M),
+                color: plotOptions.defaults.colors[0],
+            }], options);
+           
         },
         plotForDay: function($placeholder, data, config)
         {
@@ -49,7 +97,6 @@ charts.b1 = (function () {
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
             var resolution = config.resolution || 1; // days
             var bar_width_ratio = config.bars.widthRatio || 0.6; // as part of bucket 
-            var locale = config.locale;
             
             var options = {
                 series: {
@@ -61,7 +108,7 @@ charts.b1 = (function () {
                 xaxis: $.extend({}, plotOptions.defaults.xaxis, {
                     ticks: $.map(data1, function(v, i) {
                         var t = v.timestamp.getTime(),
-                            tm = (locale)? moment(t).locale(locale) : moment(t);
+                            tm = (config.locale)? moment(t).locale(config.locale) : moment(t);
                         return [[v.id + (bar_width_ratio / 2.0), tm.format('dd')]];
                     }),
                     min: 0,
@@ -108,12 +155,6 @@ charts.b1 = (function () {
                     })
                     i = j;
                 }
-                //plotdata.push({
-                //    data: $.map(data2, function (m, i) {return [[i, m.value]]}) ,
-                //    label: formatLabel(M2),
-                //    color: 'orange',
-                //    bars: {fill: 0.1},
-                //});
             }
 
             return $.plot($placeholder, plotdata, options);
@@ -158,7 +199,7 @@ charts.b1 = (function () {
                 data: $.map(data, function(v) {return (v.value) ? [[v.id, v.value]] : null}),
                 label: formatLabel(M),
                 color: plotOptions.defaults.colors[0],
-            }], options);  
+            }], options);
         },
         plotForYear: function($placeholder, data, config)
         {
@@ -286,26 +327,22 @@ $.extend(daiad.charts, {
         return {range: [y0, y1 + 1], color: color};
     },
 
-    generateTicks: function (r, n, m, precision) {
+    generateTicks: function (r, n, m, formatter) {
         // Generate approx n ticks in range r. Use only multiples of m.
         var dx = r[1] - r[0],
             step = Math.ceil(dx / (n * m)) * m,
             x0 = Math.floor(r[0] / m) * m;
 
         var f = null;
-        if (precision)
+        if (formatter)
             f = function(_, i) {
                 var x = x0 + i * step;
-                return [
-                    [x, x.toFixed(precision)]
-                ];
+                return [[x, formatter.call(null, x, i, step)]];
             };
         else
             f = function(_, i) {
                 var x = x0 + i * step;
-                return [
-                    [x, x]
-                ];
+                return [[x, x.toString()]];
             };
 
         var l = (r[1] - x0 < n * step) ? (n + 1) : (n + 2);

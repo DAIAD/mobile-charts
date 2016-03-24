@@ -76,26 +76,22 @@ $.extend(daiad.charts, {
         return {range: [y0, y1 + 1], color: color};
     },
 
-    generateTicks: function (r, n, m, precision) {
+    generateTicks: function (r, n, m, formatter) {
         // Generate approx n ticks in range r. Use only multiples of m.
         var dx = r[1] - r[0],
             step = Math.ceil(dx / (n * m)) * m,
             x0 = Math.floor(r[0] / m) * m;
 
         var f = null;
-        if (precision)
+        if (formatter)
             f = function(_, i) {
                 var x = x0 + i * step;
-                return [
-                    [x, x.toFixed(precision)]
-                ];
+                return [[x, formatter.call(null, x, i, step)]];
             };
         else
             f = function(_, i) {
                 var x = x0 + i * step;
-                return [
-                    [x, x]
-                ];
+                return [[x, x.toString()]];
             };
 
         var l = (r[1] - x0 < n * step) ? (n + 1) : (n + 2);
