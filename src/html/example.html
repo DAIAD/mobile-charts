@@ -85,6 +85,9 @@
          <div id="comparison-charts-tab" class="tab-pane">
            <h3>Compare to others</h3>
            <div class="chart" id="comparison-chart-labels"></div>
+
+           <h3>Markers</h3>
+           <div class="chart" id="comparison-chart-markers"></div>
          </div> <!-- #comparison-charts-tab -->
        
        </div> <!-- .tab-content -->
@@ -374,7 +377,7 @@
                 ['avg', {
                     label: 'Average', 
                     color: '#7F7E83',
-                    labelColor: '#fff',
+                    labelColor: '#FFF',
                 }],
                 ['best', {
                     label: 'Best', 
@@ -392,8 +395,43 @@
         charts.comparison.plotBarsWithLabels($('#comparison-chart-labels'), data, config);
 
         // Comparison - Markers in a linear scale of efficiency
-
-        // Todo
+        
+        data = [
+            ['best', 180],
+            ['avg', 169],
+            ['me', 158],
+        ];
+        config = {
+            // Define the expected range of values
+            range: [50, 200],
+            // How many steps in the linear scale (keep it between 10 and 20)?
+            numSteps: 15,  
+            // Provide labels for markers on data points
+            points: new Map([
+                ['me', {
+                    label: 'Me', 
+                    color: '#3D97D8',
+                    labelColor: '#FFF',
+                }],
+                ['avg', {
+                    label: 'Avg', 
+                    color: '#CE363B',
+                    labelColor: '#FFF',
+                }],
+                ['best', {
+                    label: 'Best', 
+                    color: '#7BD3AB',
+                    labelColor: '#445C92'
+                }],   
+            ]),
+            // Style background bars (linear scale)
+            bars: {
+                color: '#BBB',
+                widthRatio: 0.35,
+            },
+        };
+      
+        charts.comparison.plotBarsWithMarkers($('#comparison-chart-markers'), data, config)
     
         // Comparison - Breakdown
 
