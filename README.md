@@ -17,3 +17,6 @@ Build and deploy (locally):
     grunt build
     grunt deploy --prefix ~/var/www/charts
 
+Launch a watch task (foreground) to build when source changes:
+
+    grunt watch:charts --prefix ~/var/www/charts/
