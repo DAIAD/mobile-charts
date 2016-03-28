@@ -16,3 +16,16 @@ body {
     ;
 }
 
+.chart .value-label {
+    display: block;
+    position: absolute;
+}
+
+.chart .value-label.value {
+    font-size:1.2em;
+}
+
+.chart .value-label.label {
+    font-size:1.2em;
+    font-weight: normal;
+}

@@ -2,14 +2,13 @@
 <html>
 <head>
   <meta charset="utf-8">
+  
   <!-- External dependencies (CDN) -->
   <script src="//code.jquery.com/jquery-1.12.1.min.js"></script>
   <script src="//cdnjs.cloudflare.com/ajax/libs/flot/0.8.3/jquery.flot.js"></script>
-  <!--<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js"></script>-->
-  <!--<script src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.12.0/moment-with-locales.min.js"></script>-->
-  <!-- External optional (CDN) -->
   <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
   <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"/>
+  
   <!-- Local -->
   <script src="<%= pkg.name %>.js"></script> 
   <script src="moment-localized.min.js"></script> <!-- bundle with a subset of locales --> 
@@ -43,6 +42,7 @@
         <ul class="nav nav-pills">
           <li class=""><a data-toggle="pill" href="#meter-charts-tab">Meter Charts</a></li>
           <li class=""><a data-toggle="pill" href="#b1-charts-tab">B1 Charts</a></li>
+          <li class=""><a data-toggle="pill" href="#comparison-charts-tab">Compare</a></li>
         </ul> <!-- .nav -->
  
         <div class="tab-content">
@@ -82,6 +82,11 @@
             <div class="chart" id="b1-chart-year-view"></div>
          </div> <!-- #b1-charts-tab -->
 
+         <div id="comparison-charts-tab" class="tab-pane">
+           <h3>Compare to others</h3>
+           <div class="chart" id="comparison-chart-labels"></div>
+         </div> <!-- #comparison-charts-tab -->
+       
        </div> <!-- .tab-content -->
 
       </div> <!-- column -->
@@ -94,7 +99,6 @@
    
     var charts = daiad.charts;
     var Measurement = daiad.model.Measurement;
-    console.info(daiad.VERSION);
     
     var qs = new Map($.map(
         window.location.search.replace(/^[?]/, '').split('&'),
@@ -104,7 +108,8 @@
     console.info('Using locale: ' + locale);
 
     $(document).ready(function () {
-        $('[href="#b1-charts-tab"]').tab('show');
+        var href = window.location.hash || "#meter-charts-tab";
+        $('[href="' + href + '"]').tab('show');
     })
     
     $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
@@ -347,7 +352,55 @@
            resolution: 1, // months
        });
     });
+
+    $('[href="#comparison-charts-tab"]').one('shown.bs.tab', function () {
+        var data, config;
+
+        // Comparison - Labels
+
+        data = [
+            ['best', 110],
+            ['avg', 150],
+            ['me', 180],
+        ];
+        config = {
+            // Provide labels for data points
+            points: new Map([
+                ['me', {
+                    label: 'My Home', 
+                    color: '#2D3580',
+                    labelColor: '#FFF',
+                }],
+                ['avg', {
+                    label: 'Average', 
+                    color: '#7F7E83',
+                    labelColor: '#fff',
+                }],
+                ['best', {
+                    label: 'Best', 
+                    color: '#7BD3AB',
+                    labelColor: '#445C92'
+                }],   
+            ]),
+            // Style labels
+            labels: {
+                paddingX: 8,
+                marginX: 8,
+                align: 'right',
+            },
+        };
+        charts.comparison.plotBarsWithLabels($('#comparison-chart-labels'), data, config);
+
+        // Comparison - Markers in a linear scale of efficiency
+
+        // Todo
     
+        // Comparison - Breakdown
+
+        // Todo
+
+    });
+
 </script>
 
 </html>

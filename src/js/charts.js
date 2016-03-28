@@ -14,6 +14,7 @@ $.extend(daiad.charts, {
                 points: {
                     radius: 2,
                 },
+                shadowSize: 0,
                 lines: {
                     lineWidth: 1,
                 },
