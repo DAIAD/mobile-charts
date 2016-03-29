@@ -294,7 +294,7 @@ charts.comparison = (function () {
                 bars: {
                     barWidth: config.bars.widthRatio,
                     horizontal: false,
-                    fill: 0.8,
+                    fill: 0.95,
                 },
             };
             
