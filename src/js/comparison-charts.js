@@ -7,7 +7,9 @@ charts.comparison = (function () {
     plotOptions.defaults.grid.margin = {
         top: 15, bottom: 10, left: 25, right: 25,
     };
-   
+    
+    var generateTicks = charts.generateTicks;
+
     return {
         plotBarsWithLabels: function ($placeholder, data, config)
         {
@@ -232,7 +234,129 @@ charts.comparison = (function () {
         },
         plotBarsAsPairs: function ($placeholder, data1, data2, config)
         {
-            // Todo
+            var name_comparator = function (a, b) {return a[0].localeCompare(b[0])},
+                name_getter = function (v) {return v[0]}, 
+                names = null;
+            data1.sort(name_comparator);
+            data2.sort(name_comparator);
+            names = $.map(data1, name_getter);
+
+            var value_getter = function (v) {return v[1]},
+                miny1 = Math.min.apply(null, $.map(data1, value_getter)),
+                maxy1 = Math.max.apply(null, $.map(data1, value_getter)),
+                miny2 = Math.min.apply(null, $.map(data2, value_getter)),
+                maxy2 = Math.max.apply(null, $.map(data2, value_getter)),
+                miny = Math.min(miny1, miny2),
+                maxy = Math.max(maxy1, maxy2),
+                dy = maxy - miny;
+               
+            config = $.extend({
+                range: null,
+                meta: [{label: 'A'}, {label: 'B'}],
+                points: null, 
+                legend: 'default',
+                bars: {}
+            },(config || {}));
+            config.range || (config.range = [miny, maxy]);
+            config.bars = $.extend({widthRatio: 0.85}, config.bars);
+            
+            // Build flot options
+
+            var options = {
+                series: {
+                    points: {show: false},
+                    shadowSize: 0,
+                    lines: {show: false},
+                    bars: {show: true, lineWidth: 1, fill: 1.0},
+                },
+                xaxis: {
+                    ticks: (config.points instanceof Map)? 
+                        ($.map(names, function (name, i) {
+                            var c = config.points.get(name) || {};
+                            return [[i + (0), (c.label || name).toString()]];
+                        })):
+                        ([]),
+                    tickLength: 0,
+                    tickColor: plotOptions.defaults.xaxis.tickColor,
+                    // Note: Autoadjust (set to null) so both bar sides are shown
+                    min: null, /* 0, */
+                    max: null, /* data1.length - 1, */
+                },
+                yaxis: {
+                    ticks: generateTicks([miny, maxy], 5, 10),
+                    tickLength: 0,
+                    tickColor: plotOptions.defaults.yaxis.tickColor,
+                    min: miny - 0.15 * dy,
+                    max: maxy + 0.40 * dy,
+                },
+                grid: plotOptions.defaults.grid, 
+                legend: {show: false},
+                bars: {
+                    barWidth: config.bars.widthRatio,
+                    horizontal: false,
+                    fill: 0.8,
+                },
+            };
+            
+            (config.legend == 'default') && (options.legend = {
+                show: true,
+                position: 'ne',
+                backgroundOpacity: 0.0,
+                noColumns: 2,
+                margin: 5,
+            });
+            
+            // Plot
+            
+            var plotdata = $.map([data1, data2], function (data, i) {
+                return {
+                    data: $.map(data, function (v, i) {return [[i, v[1]]];}),
+                    color: config.meta[i].labelColor,
+                    label: config.meta[i].label,
+                    bars: {align: (i == 0)? 'right' : 'left'},
+                };
+            });
+            
+            var plot = $.plot($placeholder, plotdata, options);
+            
+            // Place legend
+            
+            switch (config.legend)
+            {
+                case 'center':
+                case 'centre':
+                {
+                    // Adjust constants to agree with stylesheet ".legend-centered" rules! 
+                    var LEGEND_WIDTH_EM = 16;
+                    
+                    var em_pixels = parseFloat($placeholder.css('font-size')),
+                        legend_width = LEGEND_WIDTH_EM * em_pixels; // px
+                    
+                    var $legend = $('<div>')
+                       .addClass('legend-centered')
+                       .css({
+                           width: legend_width,
+                           top: 8,
+                           left: ($placeholder.width() - legend_width)/2,
+                       });
+                    $legend.appendTo($placeholder);
+                    
+                    $.each(plot.getData(), function (i, data) {         
+                        $legend.append($('<div>')
+                           .addClass('color-box')
+                           .text(data.label)
+                           .css({backgroundColor: data.color}));
+                    });
+                    break;
+                }
+                case 'default':
+                default:
+                {
+                    break;
+                }
+            }
+            
+            return plot;
         },
-    }
+    };
 })()

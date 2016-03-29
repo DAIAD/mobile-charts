@@ -88,6 +88,9 @@
 
            <h3>Markers</h3>
            <div class="chart" id="comparison-chart-markers"></div>
+
+           <h3>Breakdown</h3>
+           <div class="chart" id="comparison-chart-breakdown"></div>
          </div> <!-- #comparison-charts-tab -->
        
        </div> <!-- .tab-content -->
@@ -433,10 +436,68 @@
       
         charts.comparison.plotBarsWithMarkers($('#comparison-chart-markers'), data, config)
     
-        // Comparison - Breakdown
+        // Comparison - Breakdown (plot 2 data series side-by-side)
 
-        // Todo
+        var data1 = [
+            ['D', 57.8],
+            ['A', 51.8],
+            ['E', 55.6],
+            ['F', 80.3],
+            ['B', 62.1],
+            ['G', 71.8],
+            ['H', 38.7],
+            ['C', 48.0],
+        ];
+        var data2 = [
+            ['B', 50.1],
+            ['C', 60.4],
+            ['A', 59.3],
+            ['F', 67.1],
+            ['G', 70.0],
+            ['E', 70.6],
+            ['H', 46.9],
+            ['D', 64.2],
+        ];
+        
+        config = {
+            // Define the expected range of values (or set to null to be computed)
+            range: [20, 100],
+            // Provide metadata for supplied data series (required!)
+            meta: [
+                // data #1
+                {
+                    label: 'Similar',
+                    color: '#FFF',
+                    labelColor: '#ADAEB6',
+                },
+                // data #2
+                {
+                    label: 'Yours',
+                    color: '#FFF',
+                    labelColor: '#2D3580',
+                },
+            ],
+            // Provide metadata for datapoints (domain).
+            // Omit it (or set to null), if you want the X-axis to be blank.
+            points: new Map([
+                ['A', {label: 'Aa'}],
+                ['B', {label: 'Bb'}],
+                ['C', {label: 'Cc'}],
+                ['D', {label: 'Dd'}],
+                ['E', {label: 'Ee'}],
+                ['F', {label: 'Ff'}],
+                ['G', {label: 'Gg'}],
+                ['H', {label: 'Hh'}],
+            ]), 
+            // Style legend
+            legend: 'centre', // choose between: 'default', 'centre' 
+            // Style bars
+            bars: {
+                widthRatio: 0.30, // < 0.50
+            },
+        };
 
+        charts.comparison.plotBarsAsPairs($('#comparison-chart-breakdown'), data1, data2, config);
     });
 
 </script>

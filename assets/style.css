@@ -59,3 +59,28 @@ body {
     z-index: -10;
 }
 
+.chart td.legendLabel {
+    color: #222;
+    font-size: 1.1em;
+    padding: 0px 8px 0px 2px;
+}
+
+.chart .legend-centered {
+    color: #222;
+    position: absolute;
+    /*background-color: rgba(200, 200, 200, 0.5);*/
+    font-size: 1.1em;
+    padding: 10px;
+    width: 16.0em;
+    height: 1.5em;
+}
+
+.chart .legend-centered .color-box {
+    padding: 4px 6px;
+    min-width: 35%;
+    float: left;
+    margin:0px 2px;
+    color: #fff;
+    font-weight: bold;
+}
+
