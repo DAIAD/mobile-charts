@@ -109,15 +109,16 @@ charts.comparison = (function () {
         plotBarsWithMarkers: function ($placeholder, data, config)
         {
             // Adjust constants to agree with stylesheet ".value-marker" rules!
-            var MARKER_HEIGHT_EM = 1.85,
-                MARKER_WIDTH_EM = 2.40,
+            var MARKER_HEIGHT_EM = 1.80,
+                MARKER_WIDTH_EM = 2.30,
                 MARKER_ARROW_HEIGHT_EM = 0.60;
             
-            var em_pixels = parseFloat($placeholder.css('font-size'));
-            var marker_outer_height = 
-                (MARKER_HEIGHT_EM + (MARKER_ARROW_HEIGHT_EM / Math.SQRT2)) * em_pixels;
-            var marker_outer_width =
-                (MARKER_WIDTH_EM) * em_pixels;
+            var em_pixels = parseFloat($placeholder.css('font-size')),
+                marker_margin = 2, // vertical margin between stacked markers
+                marker_outer_height =
+                    (MARKER_HEIGHT_EM + (MARKER_ARROW_HEIGHT_EM / Math.SQRT2)) * em_pixels + marker_margin,
+                marker_outer_width =
+                    (MARKER_WIDTH_EM) * em_pixels;
            
             config = $.extend({
                 range: [1, 10], // expected range of values
@@ -147,7 +148,7 @@ charts.comparison = (function () {
                 return $('<div>')
                     .addClass('value-marker')
                     .css({
-                        'top': off1.top - yoff - marker_outer_height - 2,
+                        'top': off1.top - yoff - marker_outer_height,
                         'left': off1.left - marker_outer_width / 2.0,
                     });
             };

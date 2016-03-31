@@ -35,11 +35,11 @@ body {
     display: block;
     font-size: 1em;
     font-weight: bold;
-    padding: 3px 4px 4px 4px;
     border: solid 0px;
     text-align: center;
-    height: 1.85em; 
-    width: 2.40em;
+    height: 1.80em; 
+    line-height: 1.70em;
+    width: 2.30em;
     border-radius: 1px;
 }
 
@@ -49,13 +49,13 @@ body {
     position: absolute;
     height: 0.60em;
     width: 0.60em;
-    top: 1.50em;
+    top: 1.45em; /* 1.80 - 0.60/2 - 0.05 */
     border-style: solid;
     background-color: inherit;
     border-width: 0px 0px 1px 1px;
     border-color: inherit;
     transform: rotate(-45deg);
-    left: 0.90em;
+    left: 0.85em; /* (2.30 - 0.60)/2  */
     z-index: -10;
 }
 
