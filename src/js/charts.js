@@ -6,7 +6,9 @@ $.extend(daiad.charts, {
    
     WEEKS_IN_MONTH: 5, // partially
 
+    //
     // Defaults
+    //
 
     plotOptions: {
         defaults: {
@@ -54,8 +56,10 @@ $.extend(daiad.charts, {
         },
     },
 
+    //
     // Utilities
-    
+    //
+
     formatLabel: function(M, level)
     {
         var s = M.value.title + ' (' + M.value.unit + ')';
@@ -76,27 +80,44 @@ $.extend(daiad.charts, {
     {
         return {range: [y0, y1 + 1], color: color};
     },
-
+    
     generateTicks: function (r, n, m, formatter) {
         // Generate approx n ticks in range r. Use only multiples of m.
-        var dx = r[1] - r[0],
-            step = Math.ceil(dx / (n * m)) * m,
+        var dx = r[1] - r[0], step, x0, n1;
+        
+        // Compute m, if missing
+        if (!m) {
+            // Estimate order of magnitude using maximum value
+            var e1 = Math.floor(Math.log10(Math.abs(r[1])));
+            m = Math.pow(10, e1);
+            // Check if this choice yields too few (<n-2) ticks
+            if (dx > 0 && (dx < (n - 2) * Math.ceil(dx / (n * m)) * m))
+                m = 0.1 * m;
+        }
+       
+        console.debug('generateTicks: Using m=' + m)
+
+        // Compute x0, step, n1 (actual number of ticks)
+        if (dx > 0) {
+            step = Math.ceil(dx / (n * m)) * m;
             x0 = Math.floor(r[0] / m) * m;
-
-        var f = null;
-        if (formatter)
-            f = function(_, i) {
-                var x = x0 + i * step;
-                return [[x, formatter.call(null, x, i, step)]];
-            };
-        else
-            f = function(_, i) {
-                var x = x0 + i * step;
-                return [[x, x.toString()]];
-            };
-
-        var l = (r[1] - x0 < n * step) ? (n + 1) : (n + 2);
-        return $.map(new Array(l), f);
+            n1 = (r[1] - x0 < n * step)? (n + 1) : (n + 2);
+        } else {
+            step = Math.max(Math.floor((r[0] * 0.2) / m), 1) * m;
+            x0 = Math.floor(r[0] / m) * m;
+            n1 = 2;
+        }
+        
+        if (!formatter)
+            formatter = function (x, i, step) {
+                var precision = (Number.isInteger(x))? 0 : 1;
+                return x.toFixed(precision);
+            }
+        
+        return $.map(new Array(n1), function (_, i) {
+            var x = x0 + i * step;
+            return [[x, formatter.call(null, x, i, step)]];
+        });
     },
 
 });

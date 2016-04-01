@@ -5,6 +5,10 @@ daiad.model || (daiad.model = {});
 // Measurements
 
 $.extend(daiad.model, (function () {
+    
+    //
+    // Measurement
+    //
 
     function Measurement(id, timestamp, value) {
         if (!(timestamp instanceof Date)) {
@@ -21,8 +25,13 @@ $.extend(daiad.model, (function () {
             ' (' + this.constructor.value.unit.toString() + ')';
     }
 
+    var value_getter = function (m) {return m.value};
+
     $.extend(Measurement, {
+        //
         // Class attributes
+        //
+
         timestamp: {
             name: 'timestamp',
             title: 'Time',
@@ -33,18 +42,40 @@ $.extend(daiad.model, (function () {
             title: 'Value',
             unit: null
         },
+        
+        //
         // Class methods
-        calcRange: function (data) 
+        //
+
+        // Compute the range for a series
+        computeRange: function (data) 
         {
             if (!(data && data.length > 0))
                 return [-Infinity, +Infinity];
-
-            var g = function (m) { return m.value };
-            var miny = Math.min.apply(null, $.map(data, g)), 
-                maxy = Math.max.apply(null, $.map(data, g));
+            var miny = Math.min.apply(null, $.map(data, value_getter)), 
+                maxy = Math.max.apply(null, $.map(data, value_getter));
             return [miny, maxy];
         },
+
+        // Compute the range [0, M] for a series of positive values
+        computePositiveRange: function (data)
+        {
+            if (!(data && data.length > 0))
+                return [.0, +Infinity];
+            var maxy = Math.max.apply(null, $.map(data, value_getter));
+            
+            if (!(maxy > 0))
+                console.warn('Expected positive maximum value (' + maxy + ')');
+            return [.0, maxy];
+        },
     });
+
+    // Set default method for getting the range of values (override in "derived" objects)
+    Measurement.getRange = Measurement.computePositiveRange;
+
+    //
+    // EnergyMeasurement
+    //
 
     function EnergyMeasurement(id, timestamp, value) {
         Measurement.call(this, id, timestamp, value);
@@ -63,6 +94,10 @@ $.extend(daiad.model, (function () {
         },
     });
     
+    //
+    // Export model
+    //
+
     return {
         Measurement: Measurement,
         EnergyMeasurement: EnergyMeasurement,

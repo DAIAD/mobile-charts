@@ -3,7 +3,7 @@ var charts = require('./charts')
 var model = require('./model')
 
 charts.b1 = (function () {
-    
+
     var plotOptions = $.extend({}, charts.plotOptions);
     plotOptions.defaults.colors = ['#2D3580'];
     plotOptions.defaults.colormap = new Map([
@@ -13,7 +13,7 @@ charts.b1 = (function () {
     ]);
     
     var formatLabel = charts.formatLabel;
-
+    
     return {
         plotForEvent: function($placeholder, data, config)
         {   
@@ -21,7 +21,7 @@ charts.b1 = (function () {
                 return null;
 
             var M = data[0].constructor,
-                ry = M.calcRange(data),
+                ry = M.getRange(data),
                 miny = ry[0],
                 maxy = ry[1],
                 dy = maxy - miny,
@@ -45,14 +45,14 @@ charts.b1 = (function () {
                     ticks: charts.generateTicks(rx, (config.xaxis.ticks || 5), 5 * 60 * 1000, function (x) {
                         return moment(x).format('hh:mm a')
                     }),
-                    tickLength: 9, 
+                    tickLength: 6, 
                     min: minx,
                     max: maxx,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false},
@@ -85,8 +85,8 @@ charts.b1 = (function () {
 
             var M1 = (n1 > 0)? (data1[0].constructor) : (null),
                 M2 = (n2 > 0)? (data2[0].constructor) : (null),
-                ry1 = M1.calcRange(data1),
-                ry2 = M2.calcRange(data2),
+                ry1 = M1.getRange(data1),
+                ry2 = M2.getRange(data2),
                 miny = Math.min(ry1[0], ry2[0]),
                 maxy = Math.max(ry1[1], ry2[1]),
                 ry = [miny, maxy],
@@ -114,9 +114,9 @@ charts.b1 = (function () {
                     max: n,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false, position: 'ne'},
@@ -164,7 +164,7 @@ charts.b1 = (function () {
                 return null;
 
             var M = data[0].constructor;
-            var ry = M.calcRange(data); 
+            var ry = M.getRange(data); 
             var miny = ry[0], maxy = ry[1], dy = maxy - miny; 
             
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
@@ -186,9 +186,9 @@ charts.b1 = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false},
@@ -206,7 +206,7 @@ charts.b1 = (function () {
                 return null;
             
             var M = data[0].constructor;
-            var ry = M.calcRange(data); 
+            var ry = M.getRange(data); 
             var miny = ry[0], maxy = ry[1], dy = maxy - miny; 
             
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
@@ -227,9 +227,9 @@ charts.b1 = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false},

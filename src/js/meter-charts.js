@@ -22,7 +22,7 @@ charts.meter = (function () {
                 return null;
 
             var M = data[0].constructor;
-            var ry = M.calcRange(data); 
+            var ry = M.getRange(data); 
             var miny = ry[0], maxy = ry[1], dy = maxy - miny; 
             
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
@@ -48,9 +48,9 @@ charts.meter = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false, position: 'ne'},
@@ -74,7 +74,7 @@ charts.meter = (function () {
                 return null;
 
             var M = data[0].constructor;
-            var ry = M.calcRange(data); 
+            var ry = M.getRange(data); 
             var miny = ry[0], maxy = ry[1], dy = maxy - miny; 
             
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
@@ -98,9 +98,9 @@ charts.meter = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false, position: 'ne'},
@@ -124,7 +124,7 @@ charts.meter = (function () {
                 return null;
 
             var M = data[0].constructor;
-            var ry = M.calcRange(data); 
+            var ry = M.getRange(data); 
             var miny = ry[0], maxy = ry[1], dy = maxy - miny; 
             
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
@@ -146,9 +146,9 @@ charts.meter = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false},
@@ -167,7 +167,7 @@ charts.meter = (function () {
                 return null;
             
             var M = data[0].constructor;
-            var ry = M.calcRange(data); 
+            var ry = M.getRange(data); 
             var miny = ry[0], maxy = ry[1], dy = maxy - miny; 
             
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
@@ -188,9 +188,9 @@ charts.meter = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false},

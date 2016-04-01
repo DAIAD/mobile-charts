@@ -175,7 +175,7 @@ charts.comparison = (function () {
                 },
                 yaxis: {
                     ticks: [],
-                    min: miny - 0.10 * dy,
+                    min: miny - 0.05 * dy,
                     max: maxy + 0.40 * dy,
                 },
                 grid: plotOptions.defaults.grid,
@@ -256,6 +256,7 @@ charts.comparison = (function () {
                 meta: [{label: 'A'}, {label: 'B'}],
                 points: null, 
                 legend: 'default',
+                yaxis: {},
                 bars: {}
             },(config || {}));
             config.range || (config.range = [miny, maxy]);
@@ -284,10 +285,10 @@ charts.comparison = (function () {
                     max: null, /* data1.length - 1, */
                 },
                 yaxis: {
-                    ticks: generateTicks([miny, maxy], 5, 10),
+                    ticks: generateTicks([miny, maxy], 5, config.yaxis.tickUnit),
                     tickLength: 0,
                     tickColor: plotOptions.defaults.yaxis.tickColor,
-                    min: miny - 0.15 * dy,
+                    min: miny - 0.05 * dy,
                     max: maxy + 0.40 * dy,
                 },
                 grid: plotOptions.defaults.grid, 

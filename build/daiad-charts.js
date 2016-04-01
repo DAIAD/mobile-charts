@@ -4,7 +4,7 @@ var charts = require('./charts')
 var model = require('./model')
 
 charts.b1 = (function () {
-    
+
     var plotOptions = $.extend({}, charts.plotOptions);
     plotOptions.defaults.colors = ['#2D3580'];
     plotOptions.defaults.colormap = new Map([
@@ -14,7 +14,7 @@ charts.b1 = (function () {
     ]);
     
     var formatLabel = charts.formatLabel;
-
+    
     return {
         plotForEvent: function($placeholder, data, config)
         {   
@@ -22,7 +22,7 @@ charts.b1 = (function () {
                 return null;
 
             var M = data[0].constructor,
-                ry = M.calcRange(data),
+                ry = M.getRange(data),
                 miny = ry[0],
                 maxy = ry[1],
                 dy = maxy - miny,
@@ -46,14 +46,14 @@ charts.b1 = (function () {
                     ticks: charts.generateTicks(rx, (config.xaxis.ticks || 5), 5 * 60 * 1000, function (x) {
                         return moment(x).format('hh:mm a')
                     }),
-                    tickLength: 9, 
+                    tickLength: 6, 
                     min: minx,
                     max: maxx,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false},
@@ -86,8 +86,8 @@ charts.b1 = (function () {
 
             var M1 = (n1 > 0)? (data1[0].constructor) : (null),
                 M2 = (n2 > 0)? (data2[0].constructor) : (null),
-                ry1 = M1.calcRange(data1),
-                ry2 = M2.calcRange(data2),
+                ry1 = M1.getRange(data1),
+                ry2 = M2.getRange(data2),
                 miny = Math.min(ry1[0], ry2[0]),
                 maxy = Math.max(ry1[1], ry2[1]),
                 ry = [miny, maxy],
@@ -115,9 +115,9 @@ charts.b1 = (function () {
                     max: n,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false, position: 'ne'},
@@ -165,7 +165,7 @@ charts.b1 = (function () {
                 return null;
 
             var M = data[0].constructor;
-            var ry = M.calcRange(data); 
+            var ry = M.getRange(data); 
             var miny = ry[0], maxy = ry[1], dy = maxy - miny; 
             
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
@@ -187,9 +187,9 @@ charts.b1 = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false},
@@ -207,7 +207,7 @@ charts.b1 = (function () {
                 return null;
             
             var M = data[0].constructor;
-            var ry = M.calcRange(data); 
+            var ry = M.getRange(data); 
             var miny = ry[0], maxy = ry[1], dy = maxy - miny; 
             
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
@@ -228,9 +228,9 @@ charts.b1 = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false},
@@ -257,7 +257,9 @@ $.extend(daiad.charts, {
    
     WEEKS_IN_MONTH: 5, // partially
 
+    //
     // Defaults
+    //
 
     plotOptions: {
         defaults: {
@@ -305,8 +307,10 @@ $.extend(daiad.charts, {
         },
     },
 
+    //
     // Utilities
-    
+    //
+
     formatLabel: function(M, level)
     {
         var s = M.value.title + ' (' + M.value.unit + ')';
@@ -327,27 +331,44 @@ $.extend(daiad.charts, {
     {
         return {range: [y0, y1 + 1], color: color};
     },
-
+    
     generateTicks: function (r, n, m, formatter) {
         // Generate approx n ticks in range r. Use only multiples of m.
-        var dx = r[1] - r[0],
-            step = Math.ceil(dx / (n * m)) * m,
+        var dx = r[1] - r[0], step, x0, n1;
+        
+        // Compute m, if missing
+        if (!m) {
+            // Estimate order of magnitude using maximum value
+            var e1 = Math.floor(Math.log10(Math.abs(r[1])));
+            m = Math.pow(10, e1);
+            // Check if this choice yields too few (<n-2) ticks
+            if (dx > 0 && (dx < (n - 2) * Math.ceil(dx / (n * m)) * m))
+                m = 0.1 * m;
+        }
+       
+        console.debug('generateTicks: Using m=' + m)
+
+        // Compute x0, step, n1 (actual number of ticks)
+        if (dx > 0) {
+            step = Math.ceil(dx / (n * m)) * m;
             x0 = Math.floor(r[0] / m) * m;
-
-        var f = null;
-        if (formatter)
-            f = function(_, i) {
-                var x = x0 + i * step;
-                return [[x, formatter.call(null, x, i, step)]];
-            };
-        else
-            f = function(_, i) {
-                var x = x0 + i * step;
-                return [[x, x.toString()]];
-            };
-
-        var l = (r[1] - x0 < n * step) ? (n + 1) : (n + 2);
-        return $.map(new Array(l), f);
+            n1 = (r[1] - x0 < n * step)? (n + 1) : (n + 2);
+        } else {
+            step = Math.max(Math.floor((r[0] * 0.2) / m), 1) * m;
+            x0 = Math.floor(r[0] / m) * m;
+            n1 = 2;
+        }
+        
+        if (!formatter)
+            formatter = function (x, i, step) {
+                var precision = (Number.isInteger(x))? 0 : 1;
+                return x.toFixed(precision);
+            }
+        
+        return $.map(new Array(n1), function (_, i) {
+            var x = x0 + i * step;
+            return [[x, formatter.call(null, x, i, step)]];
+        });
     },
 
 });
@@ -532,7 +553,7 @@ charts.comparison = (function () {
                 },
                 yaxis: {
                     ticks: [],
-                    min: miny - 0.10 * dy,
+                    min: miny - 0.05 * dy,
                     max: maxy + 0.40 * dy,
                 },
                 grid: plotOptions.defaults.grid,
@@ -613,6 +634,7 @@ charts.comparison = (function () {
                 meta: [{label: 'A'}, {label: 'B'}],
                 points: null, 
                 legend: 'default',
+                yaxis: {},
                 bars: {}
             },(config || {}));
             config.range || (config.range = [miny, maxy]);
@@ -641,10 +663,10 @@ charts.comparison = (function () {
                     max: null, /* data1.length - 1, */
                 },
                 yaxis: {
-                    ticks: generateTicks([miny, maxy], 5, 10),
+                    ticks: generateTicks([miny, maxy], 5, config.yaxis.tickUnit),
                     tickLength: 0,
                     tickColor: plotOptions.defaults.yaxis.tickColor,
-                    min: miny - 0.15 * dy,
+                    min: miny - 0.05 * dy,
                     max: maxy + 0.40 * dy,
                 },
                 grid: plotOptions.defaults.grid, 
@@ -758,7 +780,7 @@ charts.meter = (function () {
                 return null;
 
             var M = data[0].constructor;
-            var ry = M.calcRange(data); 
+            var ry = M.getRange(data); 
             var miny = ry[0], maxy = ry[1], dy = maxy - miny; 
             
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
@@ -784,9 +806,9 @@ charts.meter = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false, position: 'ne'},
@@ -810,7 +832,7 @@ charts.meter = (function () {
                 return null;
 
             var M = data[0].constructor;
-            var ry = M.calcRange(data); 
+            var ry = M.getRange(data); 
             var miny = ry[0], maxy = ry[1], dy = maxy - miny; 
             
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
@@ -834,9 +856,9 @@ charts.meter = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false, position: 'ne'},
@@ -860,7 +882,7 @@ charts.meter = (function () {
                 return null;
 
             var M = data[0].constructor;
-            var ry = M.calcRange(data); 
+            var ry = M.getRange(data); 
             var miny = ry[0], maxy = ry[1], dy = maxy - miny; 
             
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
@@ -882,9 +904,9 @@ charts.meter = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false},
@@ -903,7 +925,7 @@ charts.meter = (function () {
                 return null;
             
             var M = data[0].constructor;
-            var ry = M.calcRange(data); 
+            var ry = M.getRange(data); 
             var miny = ry[0], maxy = ry[1], dy = maxy - miny; 
             
             config = $.extend({bars: {}, xaxis: {}, yaxis: {}}, (config || {}));
@@ -924,9 +946,9 @@ charts.meter = (function () {
                     max: data.length,
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-                    ticks: charts.generateTicks(ry, 4, 10),
-                    min: miny - 0.15 * dy,
-                    max: maxy + 0.15 * dy,
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
                 }),
                 grid: plotOptions.defaults.grid,
                 legend: {show: false},
@@ -952,6 +974,10 @@ daiad.model || (daiad.model = {});
 // Measurements
 
 $.extend(daiad.model, (function () {
+    
+    //
+    // Measurement
+    //
 
     function Measurement(id, timestamp, value) {
         if (!(timestamp instanceof Date)) {
@@ -968,8 +994,13 @@ $.extend(daiad.model, (function () {
             ' (' + this.constructor.value.unit.toString() + ')';
     }
 
+    var value_getter = function (m) {return m.value};
+
     $.extend(Measurement, {
+        //
         // Class attributes
+        //
+
         timestamp: {
             name: 'timestamp',
             title: 'Time',
@@ -980,18 +1011,40 @@ $.extend(daiad.model, (function () {
             title: 'Value',
             unit: null
         },
+        
+        //
         // Class methods
-        calcRange: function (data) 
+        //
+
+        // Compute the range for a series
+        computeRange: function (data) 
         {
             if (!(data && data.length > 0))
                 return [-Infinity, +Infinity];
-
-            var g = function (m) { return m.value };
-            var miny = Math.min.apply(null, $.map(data, g)), 
-                maxy = Math.max.apply(null, $.map(data, g));
+            var miny = Math.min.apply(null, $.map(data, value_getter)), 
+                maxy = Math.max.apply(null, $.map(data, value_getter));
             return [miny, maxy];
         },
+
+        // Compute the range [0, M] for a series of positive values
+        computePositiveRange: function (data)
+        {
+            if (!(data && data.length > 0))
+                return [.0, +Infinity];
+            var maxy = Math.max.apply(null, $.map(data, value_getter));
+            
+            if (!(maxy > 0))
+                console.warn('Expected positive maximum value (' + maxy + ')');
+            return [.0, maxy];
+        },
     });
+
+    // Set default method for getting the range of values (override in "derived" objects)
+    Measurement.getRange = Measurement.computePositiveRange;
+
+    //
+    // EnergyMeasurement
+    //
 
     function EnergyMeasurement(id, timestamp, value) {
         Measurement.call(this, id, timestamp, value);
@@ -1010,6 +1063,10 @@ $.extend(daiad.model, (function () {
         },
     });
     
+    //
+    // Export model
+    //
+
     return {
         Measurement: Measurement,
         EnergyMeasurement: EnergyMeasurement,
