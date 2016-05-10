@@ -15,8 +15,64 @@ charts.b1 = (function () {
     var formatLabel = charts.formatLabel;
     
     return {
-        plotForEvent: function($placeholder, data, config)
+        plotForEvent: function ($placeholder, data, config)
+        {
+            // Expect data that decribe successive events (no timestamps supplied).
+            // Assume data is sorted on `id`.
+
+            if (!data || data.length == 0)
+                return null;
+            
+            var M = data[0].constructor,
+                ry = M.getRange(data),
+                miny = ry[0],
+                maxy = ry[1],
+                dy = maxy - miny,
+                minx = data[0].id,
+                maxx = data[data.length -1].id,
+                rx = [minx, maxx],
+                dx = maxx - minx;
+            
+            config = $.extend({bars: true, xaxis: {}, yaxis: {}}, (config || {}));
+            
+            var options = {
+                series: {
+                    points: {show: false, radius: 1},
+                    shadowSize: 0,
+                    lines: config.bars? {show: false} :
+                        $.extend({show: true}, plotOptions.defaults.series.lines, {fill: 0.4}),
+                    bars: !config.bars? {show: false} : 
+                        $.extend({show: true}, plotOptions.defaults.series.bars, {barWidth: 0.5}),
+                },
+                xaxis: $.extend({}, plotOptions.defaults.xaxis, {
+                    ticks: config.xaxis.ticks || 5,
+                    // Todo Provide a formatter that can take advantage of sporadic timestamps 
+                    tickLength: 6, 
+                    min: minx - Math.floor(0.05 * dx),
+                    max: maxx + Math.floor(0.05 * dx),
+                }),
+                yaxis: $.extend({}, plotOptions.defaults.yaxis, {
+                    ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
+                    min: miny - 0.00 * dy,
+                    max: maxy + 0.10 * dy,
+                }),
+                grid: plotOptions.defaults.grid,
+                legend: {show: false},
+            };
+
+            return $.plot($placeholder, [{
+                data: $.map(data, function(v) {
+                    return (v.value) ? [[v.id, v.value]] : null;
+                }),
+                label: formatLabel(M),
+                color: plotOptions.defaults.colors[0],
+            }], options);
+        },
+        plotForTimedEvent: function($placeholder, data, config)
         {   
+            // Expect data that describe events marked with time
+            // Assume data is sorted on `timestamp`.
+            
             if (!data || data.length == 0)
                 return null;
 

@@ -64,8 +64,11 @@
 
           <!-- B1 Charts -->
           <div id="b1-charts-tab" class="tab-pane">
-            <h3>Shower View</h3>
-            <div class="chart" id="b1-chart-shower-view"></div>
+            <h3>Event View</h3>
+            <div class="chart" id="b1-chart-event-view"></div>
+            
+            <h3>Event View (timed)</h3>
+            <div class="chart" id="b1-chart-timed-event-view"></div>
             
             <!--
             <h3>Day View</h3>
@@ -245,7 +248,7 @@
                 t0 = moment().add(-2, 'hour');
             // Simulate 1 shower event before 1 hour
             var t1 = t0.clone().add(1, 'hour')
-            var data = [], i = 0;
+            var data = [], i = 1000;
             // A duration of approx 20 min
             var duration = Math.floor((Math.random() * 0.20 + 0.30) * 3600); // seconds
             var t1e = t1.clone().add(duration, 'second')
@@ -260,8 +263,15 @@
         }
         
         data = getB1DataForEvent(120, 200, 30);
-        console.info(data)
-        charts.b1.plotForEvent($('#b1-chart-shower-view'), data, {
+        charts.b1.plotForEvent($('#b1-chart-event-view'), data, {
+            bars: false,
+            xaxis: {
+                ticks: 6, // number of X-axis ticks (approx)
+            }, 
+        });
+        
+        data = getB1DataForEvent(120, 200, 30);
+        charts.b1.plotForTimedEvent($('#b1-chart-timed-event-view'), data, {
             resolution: 60, // seconds
             xaxis: {
                 ticks: 6, // number of X-axis ticks (approx)
