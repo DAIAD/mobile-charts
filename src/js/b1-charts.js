@@ -33,8 +33,15 @@ charts.b1 = (function () {
                 rx = [minx, maxx],
                 dx = maxx - minx;
             
-            config = $.extend({bars: true, xaxis: {}, yaxis: {}}, (config || {}));
+            config = $.extend({
+              bars: true, 
+              xaxis: {}, 
+              yaxis: {},
+              barWidth: 0.5, // meaningfull only if bars: true
+            }, (config || {}));
             
+            config.xaxis.ticks || (config.xaxis.ticks = Math.min(10, data.length));
+
             var options = {
                 series: {
                     points: {show: false, radius: 1},
@@ -42,14 +49,19 @@ charts.b1 = (function () {
                     lines: config.bars? {show: false} :
                         $.extend({show: true}, plotOptions.defaults.series.lines, {fill: 0.4}),
                     bars: !config.bars? {show: false} : 
-                        $.extend({show: true}, plotOptions.defaults.series.bars, {barWidth: 0.5}),
+                        $.extend({show: true}, plotOptions.defaults.series.bars, {barWidth: config.barWidth}),
                 },
                 xaxis: $.extend({}, plotOptions.defaults.xaxis, {
-                    ticks: config.xaxis.ticks || 5,
-                    // Todo Provide a formatter that can take advantage of sporadic timestamps 
+                    ticks: charts.generateTicks(
+                      rx, 
+                      config.xaxis.ticks, 
+                      null, 
+                      function (x) {return x.toFixed(0)},
+                      config.bars? (0.5 * config.barWidth) : (.0)
+                    ).filter(function (p) {return (p[0] < maxx + 1)}),
                     tickLength: 6, 
-                    min: minx - Math.floor(0.05 * dx),
-                    max: maxx + Math.floor(0.05 * dx),
+                    min: minx - 0,
+                    max: maxx + 1, // so that the last bar has enough space!
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
                     ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),

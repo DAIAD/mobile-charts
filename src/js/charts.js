@@ -81,7 +81,7 @@ $.extend(daiad.charts, {
         return {range: [y0, y1 + 1], color: color};
     },
     
-    generateTicks: function (r, n, m, formatter) {
+    generateTicks: function (r, n, m, formatter, offset) {
         // Generate approx n ticks in range r. Use only multiples of m.
         var dx = r[1] - r[0], step, x0, n1;
         
@@ -91,8 +91,10 @@ $.extend(daiad.charts, {
             var e1 = Math.floor(Math.log10(Math.abs(r[1])));
             m = Math.pow(10, e1);
             // Check if this choice yields too few (<n-2) ticks
-            if (dx > 0 && (dx < (n - 2) * Math.ceil(dx / (n * m)) * m))
-                m = 0.1 * m;
+            if (dx > 0) {
+                while (dx < (n - 2) * Math.ceil(dx / (n * m)) * m)
+                   m = 0.1 * m;
+            }
         }
        
         console.debug('generateTicks: Using m=' + m)
@@ -114,9 +116,11 @@ $.extend(daiad.charts, {
                 return x.toFixed(precision);
             }
         
+        offset = (offset == null)? 0 : Number(offset) ;
+     
         return $.map(new Array(n1), function (_, i) {
             var x = x0 + i * step;
-            return [[x, formatter.call(null, x, i, step)]];
+            return [[x + offset, formatter.call(null, x, i, step)]];
         });
     },
 

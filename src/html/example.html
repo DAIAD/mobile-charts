@@ -249,8 +249,8 @@
             // Simulate 1 shower event before 1 hour
             var t1 = t0.clone().add(1, 'hour')
             var data = [], i = 1000;
-            // A duration of approx 20 min
-            var duration = Math.floor((Math.random() * 0.20 + 0.30) * 3600); // seconds
+            // A duration of 1h (as seconds)
+            var duration = 3600;
             var t1e = t1.clone().add(duration, 'second')
             // Measure every approx resolution seconds
             var t = t1.clone()
@@ -262,11 +262,11 @@
             return data
         }
         
-        data = getB1DataForEvent(120, 200, 30);
+        data = getB1DataForEvent(120, 200, 180);
         charts.b1.plotForEvent($('#b1-chart-event-view'), data, {
             bars: false,
             xaxis: {
-                ticks: 6, // number of X-axis ticks (approx)
+                ticks: 10, // number of X-axis ticks (approx)
             }, 
         });
         

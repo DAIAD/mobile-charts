@@ -34,8 +34,15 @@ charts.b1 = (function () {
                 rx = [minx, maxx],
                 dx = maxx - minx;
             
-            config = $.extend({bars: true, xaxis: {}, yaxis: {}}, (config || {}));
+            config = $.extend({
+              bars: true, 
+              xaxis: {}, 
+              yaxis: {},
+              barWidth: 0.5, // meaningfull only if bars: true
+            }, (config || {}));
             
+            config.xaxis.ticks || (config.xaxis.ticks = Math.min(10, data.length));
+
             var options = {
                 series: {
                     points: {show: false, radius: 1},
@@ -43,14 +50,19 @@ charts.b1 = (function () {
                     lines: config.bars? {show: false} :
                         $.extend({show: true}, plotOptions.defaults.series.lines, {fill: 0.4}),
                     bars: !config.bars? {show: false} : 
-                        $.extend({show: true}, plotOptions.defaults.series.bars, {barWidth: 0.5}),
+                        $.extend({show: true}, plotOptions.defaults.series.bars, {barWidth: config.barWidth}),
                 },
                 xaxis: $.extend({}, plotOptions.defaults.xaxis, {
-                    ticks: config.xaxis.ticks || 5,
-                    // Todo Provide a formatter that can take advantage of sporadic timestamps 
+                    ticks: charts.generateTicks(
+                      rx, 
+                      config.xaxis.ticks, 
+                      null, 
+                      function (x) {return x.toFixed(0)},
+                      config.bars? (0.5 * config.barWidth) : (.0)
+                    ).filter(function (p) {return (p[0] < maxx + 1)}),
                     tickLength: 6, 
-                    min: minx - Math.floor(0.05 * dx),
-                    max: maxx + Math.floor(0.05 * dx),
+                    min: minx - 0,
+                    max: maxx + 1, // so that the last bar has enough space!
                 }),
                 yaxis: $.extend({}, plotOptions.defaults.yaxis, {
                     ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
@@ -388,7 +400,7 @@ $.extend(daiad.charts, {
         return {range: [y0, y1 + 1], color: color};
     },
     
-    generateTicks: function (r, n, m, formatter) {
+    generateTicks: function (r, n, m, formatter, offset) {
         // Generate approx n ticks in range r. Use only multiples of m.
         var dx = r[1] - r[0], step, x0, n1;
         
@@ -398,8 +410,10 @@ $.extend(daiad.charts, {
             var e1 = Math.floor(Math.log10(Math.abs(r[1])));
             m = Math.pow(10, e1);
             // Check if this choice yields too few (<n-2) ticks
-            if (dx > 0 && (dx < (n - 2) * Math.ceil(dx / (n * m)) * m))
-                m = 0.1 * m;
+            if (dx > 0) {
+                while (dx < (n - 2) * Math.ceil(dx / (n * m)) * m)
+                   m = 0.1 * m;
+            }
         }
        
         console.debug('generateTicks: Using m=' + m)
@@ -421,9 +435,11 @@ $.extend(daiad.charts, {
                 return x.toFixed(precision);
             }
         
+        offset = (offset == null)? 0 : Number(offset) ;
+     
         return $.map(new Array(n1), function (_, i) {
             var x = x0 + i * step;
-            return [[x, formatter.call(null, x, i, step)]];
+            return [[x + offset, formatter.call(null, x, i, step)]];
         });
     },
 
