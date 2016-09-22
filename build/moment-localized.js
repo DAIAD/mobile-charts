@@ -1,4 +1,4 @@
-(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+require=(function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 //! moment.js locale configuration
 //! locale : german (de)
 //! author : lluchs : https://github.com/lluchs
@@ -75,7 +75,7 @@
     return de;
 
 }));
-},{"../moment":4}],2:[function(require,module,exports){
+},{"../moment":"moment"}],2:[function(require,module,exports){
 //! moment.js locale configuration
 //! locale : modern greek (el)
 //! author : Aggelos Karalias : https://github.com/mehiel
@@ -174,7 +174,7 @@
     return el;
 
 }));
-},{"../moment":4}],3:[function(require,module,exports){
+},{"../moment":"moment"}],3:[function(require,module,exports){
 //! moment.js locale configuration
 //! locale : spanish (es)
 //! author : Julio Napurí : https://github.com/julionc
@@ -254,7 +254,24 @@
     return es;
 
 }));
-},{"../moment":4}],4:[function(require,module,exports){
+},{"../moment":"moment"}],4:[function(require,module,exports){
+(function (global){
+'use strict';
+
+var moment = require('moment');
+
+require('moment/locale/es');
+require('moment/locale/el');
+require('moment/locale/de');
+
+moment.locale('en');
+
+module.exports = moment;
+
+global.moment = moment;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{"moment":"moment","moment/locale/de":1,"moment/locale/el":2,"moment/locale/es":3}],"moment":[function(require,module,exports){
 //! moment.js
 //! version : 2.12.0
 //! authors : Tim Wood, Iskren Chernev, Moment.js contributors
@@ -3943,13 +3960,4 @@
     return _moment;
 
 }));
-},{}],5:[function(require,module,exports){
-moment = require('moment');
-
-require('moment/locale/es')
-require('moment/locale/el')
-require('moment/locale/de')
-
-moment.locale('en')
-
-},{"moment":4,"moment/locale/de":1,"moment/locale/el":2,"moment/locale/es":3}]},{},[5]);
+},{}]},{},[4]);

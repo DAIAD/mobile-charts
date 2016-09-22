@@ -9,23 +9,23 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     pkg: pkg,
-    
+  
     clean: {
       options: {
         force: true,
       },
       charts: {
         src: [
-            'build/*',
+          'build/*',
         ],
       },
     },
-    
+  
     jshint: {
       options: {
       },
       charts: {
-        src: ['src/js/**.js'],
+      src: ['src/js/**.js'],
       }
     },
 
@@ -45,28 +45,37 @@ module.exports = function(grunt) {
         }
       }
     },
-    
+  
     browserify: {
-      charts: {
-        files: {
-          'build/daiad-charts.js': ['src/js/main.js']},
+      options: {
+        /*moved to package.json*/
       },
-      moment: {
+      "charts": {
+        options: {
+          external: ['jquery', 'jquery-flot', 'moment'],
+        },
+        files: {
+          'build/daiad-charts.js': ['src/js/main.js'],
+          'build/example.js': ['src/js/example.js']
+        },
+      },
+      "moment": {
+        options: {
+          require: ['moment'],
+        },
         files: {
           'build/moment-localized.js': ['vendor/moment-localized.js'],
-          //'build/moment.js': ['vendor/moment.js']
         },
       },
     },
-    
+  
     copy: {
       options: {
         mode: '0644',
       },
-      charts: {
+      "charts": {
         options: {
           processContent: function (data, src) {
-            console.log(' **1* Pre-processing ' + src +' ...')
             return grunt.template.process(data)
           },
           processContentExclude: [
@@ -105,22 +114,24 @@ module.exports = function(grunt) {
             src: '**',
             dest: prefix,
           },
+          {
+            expand: true,
+            filter: 'isFile',
+            cwd: 'build/',
+            src: 'example.js',
+            dest: prefix,
+          },
         ],
       }
     },
 
     watch: {
       charts: {
-         files: ['src/js/**.js', 'src/html/**.html', 'assets/style.css'],
-         tasks: ['build', 'deploy'],
+        files: ['src/js/**.js', 'src/html/**.html', 'assets/style.css'],
+        tasks: ['build', 'deploy'],
       },
     },
-    
-    deploy: {
-      options: {
-        prefix: 'dist',
-      },
-    },
+  
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');
@@ -136,7 +147,7 @@ module.exports = function(grunt) {
   grunt.registerTask('deploy', ['copy:charts']);
   
   grunt.registerTask('default', 'Greet', function () {
-    console.log('Hello from ' + grunt.template.process('<%=  pkg.name %>'))
-    console.log('Hello from ' + grunt.config.get('pkg').name)
+  console.log('Hello from ' + grunt.template.process('<%=  pkg.name %>'))
+  console.log('Hello from ' + grunt.config.get('pkg').name)
   });
 };
