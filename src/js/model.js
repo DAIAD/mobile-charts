@@ -68,6 +68,12 @@ $.extend(daiad.model, (function () {
         console.warn('Expected positive maximum value (' + maxy + ')');
       return [.0, maxy];
     },
+
+    formatLabel: function()
+    {
+      return this.value.title + ' (' + this.value.unit + ')';
+    },
+
   });
 
   // Set default method for getting the range of values (override in "derived" objects)

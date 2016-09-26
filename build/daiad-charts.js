@@ -13,8 +13,6 @@ charts.b1 = function () {
   plotOptions.defaults.colors = ['#2D3580'];
   plotOptions.defaults.colormap = new Map([['default', '#2D3580'], ['measured-data', '#2D3580'], ['estimated-data', '#AAAEB1']]);
 
-  var formatLabel = charts.formatLabel;
-
   return {
     plotForEvent: function plotForEvent($placeholder, data, config) {
       // Expect data that decribe successive events (no timestamps supplied).
@@ -69,7 +67,7 @@ charts.b1 = function () {
         data: $.map(data, function (v) {
           return v.value ? [[v.id, v.value]] : null;
         }),
-        label: formatLabel(M),
+        label: M.formatLabel(),
         color: plotOptions.defaults.colors[0]
       }], options);
     },
@@ -121,7 +119,7 @@ charts.b1 = function () {
         data: $.map(data, function (v) {
           return v.value ? [[v.timestamp.getTime(), v.value]] : null;
         }),
-        label: formatLabel(M),
+        label: M.formatLabel(),
         color: plotOptions.defaults.colors[0]
       }], options);
     },
@@ -186,7 +184,7 @@ charts.b1 = function () {
         });
         plotdata.push({
           data: points1,
-          label: formatLabel(M1),
+          label: M1.formatLabel(),
           color: plotOptions.defaults.colormap.get('measured-data')
         });
       }
@@ -208,7 +206,7 @@ charts.b1 = function () {
           }span = j == n1 ? n2 - i : j - i;
           plotdata.push({
             data: [[i, data2[i].value]],
-            label: formatLabel(M2),
+            label: M2.formatLabel(),
             color: plotOptions.defaults.colormap.get('estimated-data'),
             bars: { barWidth: bar_width_ratio + span - 1 }
           });
@@ -258,7 +256,7 @@ charts.b1 = function () {
         data: $.map(data, function (v) {
           return v.value ? [[v.id, v.value]] : null;
         }),
-        label: formatLabel(M),
+        label: M.formatLabel(),
         color: plotOptions.defaults.colors[0]
       }], options);
     },
@@ -302,7 +300,7 @@ charts.b1 = function () {
         data: $.map(data, function (v) {
           return v.value ? [[v.id, v.value]] : null;
         }),
-        label: formatLabel(M),
+        label: M.formatLabel(),
         color: plotOptions.defaults.colors[0]
       }], options);
     }
@@ -376,24 +374,6 @@ $.extend(daiad.charts, {
   // Utilities
   //
 
-  formatLabel: function formatLabel(M, level) {
-    var s = M.value.title + ' (' + M.value.unit + ')';
-    if (level && level.description) s += ' (' + level.description + ')';
-    return s;
-  },
-
-  filterForData: function filterForData(level) {
-    var y0 = level.range[0],
-        y1 = level.range[1];
-    return function (m) {
-      return m.value != null && m.value >= y0 && m.value < y1 ? [[m.id, m.value]] : null;
-    };
-  },
-
-  getDefaultLevel: function getDefaultLevel(y0, y1, color) {
-    return { range: [y0, y1 + 1], color: color };
-  },
-
   generateTicks: function generateTicks(r, n, m, formatter, offset) {
     // Generate approx n ticks in range r. Use only multiples of m.
     var dx = r[1] - r[0],
@@ -413,8 +393,6 @@ $.extend(daiad.charts, {
         }
       }
     }
-
-    console.debug('generateTicks: Using m=' + m);
 
     // Compute x0, step, n1 (actual number of ticks)
     if (dx > 0) {
@@ -823,6 +801,10 @@ global.daiad = daiad;
 },{"./b1-charts":1,"./comparison-charts":3,"./index":4,"./meter-charts":6,"./model":7}],6:[function(require,module,exports){
 'use strict';
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 var moment = require('moment');
 
 var charts = require('./charts');
@@ -831,206 +813,322 @@ var model = require('./model');
 
 charts.meter = function () {
 
-  var plotOptions = $.extend({}, charts.plotOptions);
-  plotOptions.defaults.colors = ['#2D3580'];
+  var plotOptions = $.extend(true, {}, charts.plotOptions, {
+    defaults: {
+      colors: ['#2D3580']
+    }
+  });
 
-  var formatLabel = charts.formatLabel,
-      filterForData = charts.filterForData;
+  var filterForData = function filterForData(level) {
+    var _level$range = _slicedToArray(level.range, 2);
 
-  function getDefaultLevel(y0, y1) {
-    return charts.getDefaultLevel(y0, y1, plotOptions.defaults.colors[0]);
+    var y0 = _level$range[0];
+    var y1 = _level$range[1];
+
+    return function (v) {
+      return v.value != null && v.value >= y0 && v.value < y1;
+    };
+  };
+
+  var computeDataRange = function computeDataRange(series) {
+    return series.reduce(function (_ref, s, i) {
+      var _ref2 = _slicedToArray(_ref, 2);
+
+      var y0 = _ref2[0];
+      var y1 = _ref2[1];
+
+      var values = s.data.map(function (t) {
+        return t.value;
+      });
+      return [Math.min(y0, Math.min.apply(null, values)), Math.max(y1, Math.max.apply(null, values))];
+    }, [+Infinity, -Infinity]);
+  };
+
+  var plotAsBars = function plotAsBars($placeholder, series) {
+    var _ref3;
+
+    var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+    if (!series || series.length == 0) return null;
+
+    var getDataPoint = function getDataPoint(v) {
+      return [v.id, v.value];
+    };
+
+    var data0 = series[0].data; // pilot data
+    var M = data0[0].constructor; // class of measurements
+
+    var _computeDataRange = computeDataRange(series);
+
+    var _computeDataRange2 = _slicedToArray(_computeDataRange, 2);
+
+    var miny = _computeDataRange2[0];
+    var maxy = _computeDataRange2[1];
+
+
+    config = $.extend(true, //deep
+    {
+      bars: {
+        widthRatio: 0.50 },
+      xaxis: {},
+      yaxis: {}
+    }, config);
+
+    var _config = config;
+    var _config$xaxis = _config.xaxis;
+    var tickSize = _config$xaxis.tickSize;
+    var tickFilter = _config$xaxis.tickFilter;
+    var formatTime = _config$xaxis.formatter;
+
+    // Compute ticks on X axis
+
+    var tickPoints, tickOffset;
+
+    if ($.isNumeric(tickSize) && tickSize > 1) tickPoints = data0.filter(function (v, i) {
+      return i % tickSize == 0;
+    });else if ($.isFunction(tickFilter)) tickPoints = data0.filter(function (v) {
+      return tickFilter(v.timestamp);
+    });else tickPoints = data0;
+
+    tickOffset = series.length == 1 ? // Center tick position when flot-orderBars is not engaged
+    config.bars.widthRatio / 2.0 : 0.0;
+
+    // Compute Flot options
+
+    var options = {
+      series: {
+        points: { show: false },
+        shadowSize: 0,
+        lines: { show: false },
+        bars: $.extend({ show: true }, plotOptions.defaults.series.bars)
+      },
+      xaxis: $.extend({}, plotOptions.defaults.xaxis, {
+        ticks: tickPoints.map(function (v) {
+          return [v.id + tickOffset, formatTime(v.timestamp.getTime())];
+        }),
+        min: null, // let Flot compute it, so that 1st bar shows up
+        max: data0.length
+      }),
+      yaxis: $.extend({}, plotOptions.defaults.yaxis, {
+        ticks: charts.generateTicks([.0, maxy], 4, config.yaxis.tickUnit),
+        min: .0,
+        max: maxy + 0.20 * (maxy - miny)
+      }),
+      grid: plotOptions.defaults.grid,
+      legend: {
+        show: false,
+        position: 'ne'
+      },
+      bars: $.extend({}, plotOptions.defaults.bars, {
+        barWidth: config.bars.widthRatio / series.length
+      })
+    };
+
+    // Transform to series data understood by Flot 
+    // Order bars (flot-orderBars plugin) by their series number
+
+    series = series.map(function (s, i) {
+      if ($.isArray(s.levels)) return s.levels.map(function (level) {
+        return {
+          data: s.data.filter(filterForData(level)).map(getDataPoint),
+          label: M.formatLabel() + ' (' + level.description + ')',
+          color: level.color,
+          bars: { order: i }
+        };
+      });else return {
+        data: s.data.map(getDataPoint),
+        label: M.formatLabel(),
+        color: plotOptions.defaults.colors[i],
+        bars: { order: i }
+      };
+    });
+
+    // Flatten by 1 level
+    series = (_ref3 = []).concat.apply(_ref3, _toConsumableArray(series));
+
+    return $.plot($placeholder, series, options);
+  };
+
+  var plotAsLines = function plotAsLines($placeholder, series) {
+    var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+    if (!series || series.length == 0) return null;
+
+    var getDataPoint = function getDataPoint(v) {
+      return [v.id, v.value];
+    };
+    var data0 = series[0].data; // pilot data
+    var M = data0[0].constructor; // class of measurements
+
+    var _computeDataRange3 = computeDataRange(series);
+
+    var _computeDataRange4 = _slicedToArray(_computeDataRange3, 2);
+
+    var miny = _computeDataRange4[0];
+    var maxy = _computeDataRange4[1];
+
+
+    config = $.extend(true, //deep
+    {
+      xaxis: {},
+      yaxis: {},
+      lines: { fill: null }
+    }, config);
+
+    var _config2 = config;
+    var _config2$xaxis = _config2.xaxis;
+    var tickSize = _config2$xaxis.tickSize;
+    var tickFilter = _config2$xaxis.tickFilter;
+    var formatTime = _config2$xaxis.formatter;
+
+    // Compute ticks on X axis
+
+    var tickPoints;
+    if ($.isNumeric(tickSize) && tickSize > 1) tickPoints = data0.filter(function (v, i) {
+      return i % tickSize == 0;
+    });else if ($.isFunction(tickFilter)) tickPoints = data0.filter(function (v) {
+      return tickFilter(v.timestamp);
+    });else tickPoints = data0;
+
+    // Compute Flot options
+
+    var options = {
+      series: {
+        points: $.extend({}, plotOptions.defaults.series.points, {
+          show: true
+        }),
+        shadowSize: 0,
+        lines: $.extend({}, plotOptions.defaults.series.lines, {
+          show: true
+        })
+      },
+      xaxis: $.extend({}, plotOptions.defaults.xaxis, {
+        ticks: tickPoints.map(function (v) {
+          return [v.id, formatTime(v.timestamp.getTime())];
+        }),
+        min: 0,
+        max: data0.length
+      }),
+      yaxis: $.extend({}, plotOptions.defaults.yaxis, {
+        ticks: charts.generateTicks([.0, maxy], 4, config.yaxis.tickUnit),
+        min: .0,
+        max: maxy + 0.20 * (maxy - miny)
+      }),
+      grid: plotOptions.defaults.grid,
+      legend: { show: false }
+    };
+
+    // Transform series to the shape undestood by Flot
+    series = series.map(function (s, i) {
+      return {
+        data: s.data.filter(function (t) {
+          return t.value;
+        }).map(getDataPoint),
+        label: M.formatLabel(),
+        color: plotOptions.defaults.colors[i],
+        lines: {
+          fill: s.fill === undefined ? config.lines.fill : s.fill
+        }
+      };
+    });
+
+    return $.plot($placeholder, series, options);
   };
 
   return {
-    plotForDay: function plotForDay($placeholder, data, config) {
-      if (!data || data.length == 0) return null;
 
-      var M = data[0].constructor;
-      var ry = M.getRange(data);
-      var miny = ry[0],
-          maxy = ry[1],
-          dy = maxy - miny;
+    plotForDay: function plotForDay($placeholder, series) {
+      var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+      var locale = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
 
-      config = $.extend({ bars: {}, xaxis: {}, yaxis: {} }, config || {});
-      var resolution = config.resolution || 1; // hours
-      var bar_width_ratio = config.bars.widthRatio || 0.6; // as part of bucket 
-      var tick_size = config.xaxis.tickSize || 4; // 1 tick every tick_size datapoints
-
-      var options = {
-        series: {
-          points: { show: false },
-          shadowSize: 0,
-          lines: { show: false },
-          bars: $.extend({ show: true }, plotOptions.defaults.series.bars)
-        },
-        xaxis: $.extend({}, plotOptions.defaults.xaxis, {
-          ticks: $.map(data, function (v, i) {
-            var t = v.timestamp.getTime(),
-                tm = config.locale ? moment(t).locale(config.locale) : moment(t);
-            return i % tick_size == 0 ? [[v.id + bar_width_ratio / 2.0, tm.format('ha')]] : null;
-          }),
-          min: 0,
-          max: data.length
-        }),
-        yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-          ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
-          min: miny - 0.00 * dy,
-          max: maxy + 0.10 * dy
-        }),
-        grid: plotOptions.defaults.grid,
-        legend: { show: false, position: 'ne' },
-        bars: $.extend({}, plotOptions.defaults.bars, { barWidth: bar_width_ratio })
+      var formatter = locale ? function (t) {
+        return moment(t).locale(locale).format('ha');
+      } : function (t) {
+        return moment(t).format('ha');
       };
 
-      var levels = config.levels || [getDefaultLevel(miny, maxy)];
-      var plotdata = $.map(levels, function (level, i) {
-        return {
-          data: $.map(data, filterForData(level)),
-          label: formatLabel(M, level),
-          color: level.color
-        };
-      });
-      return $.plot($placeholder, plotdata, options);
+      config = $.extend(true, {
+        bars: {
+          widthRatio: 0.50
+        },
+        xaxis: {
+          tickSize: 4, // 1 tick every tickSize datapoints (hours)
+          formatter: formatter
+        }
+      }, config);
+
+      return plotAsBars($placeholder, series, config);
     },
 
-    plotForWeek: function plotForWeek($placeholder, data, config) {
-      if (!data || data.length == 0) return null;
+    plotForWeek: function plotForWeek($placeholder, series, config) {
+      var locale = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
 
-      var M = data[0].constructor;
-      var ry = M.getRange(data);
-      var miny = ry[0],
-          maxy = ry[1],
-          dy = maxy - miny;
-
-      config = $.extend({ bars: {}, xaxis: {}, yaxis: {} }, config || {});
-      var resolution = config.resolution || 1; // days
-      var bar_width_ratio = config.bars.widthRatio || 0.6; // as part of bucket 
-
-      var options = {
-        series: {
-          points: { show: false },
-          shadowSize: 0,
-          lines: { show: false },
-          bars: $.extend({ show: true }, plotOptions.defaults.series.bars)
-        },
-        xaxis: $.extend({}, plotOptions.defaults.xaxis, {
-          ticks: $.map(data, function (v, i) {
-            var t = v.timestamp.getTime(),
-                tm = config.locale ? moment(t).locale(config.locale) : moment(t);
-            return [[v.id + bar_width_ratio / 2.0, tm.format('dd')]];
-          }),
-          min: 0,
-          max: data.length
-        }),
-        yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-          ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
-          min: miny - 0.00 * dy,
-          max: maxy + 0.10 * dy
-        }),
-        grid: plotOptions.defaults.grid,
-        legend: { show: false, position: 'ne' },
-        bars: $.extend({}, plotOptions.defaults.bars, { barWidth: bar_width_ratio })
+      var formatter = locale ? function (t) {
+        return moment(t).locale(locale).format('dd');
+      } : function (t) {
+        return moment(t).format('dd');
       };
 
-      var levels = config.levels || [getDefaultLevel(miny, maxy)];
-      var plotdata = $.map(levels, function (level, i) {
-        return {
-          data: $.map(data, filterForData(level)),
-          label: formatLabel(M, level),
-          color: level.color
-        };
-      });
-      return $.plot($placeholder, plotdata, options);
+      config = $.extend(true, {
+        bars: {
+          widthRatio: 0.50
+        },
+        xaxis: {
+          tickSize: 1, // 1 tick every tickSize datapoints (days)
+          formatter: formatter
+        }
+      }, config);
+
+      return plotAsBars($placeholder, series, config);
     },
 
-    plotForMonth: function plotForMonth($placeholder, data, config) {
-      if (!data || data.length == 0) return null;
+    plotForMonth: function plotForMonth($placeholder, series, config) {
+      var locale = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
 
-      var M = data[0].constructor;
-      var ry = M.getRange(data);
-      var miny = ry[0],
-          maxy = ry[1],
-          dy = maxy - miny;
-
-      config = $.extend({ bars: {}, xaxis: {}, yaxis: {} }, config || {});
-      var resolution = config.resolution || 1; // days
-
-      var options = {
-        series: {
-          points: $.extend({ show: true }, plotOptions.defaults.series.points),
-          shadowSize: 0,
-          lines: $.extend({ show: true }, plotOptions.defaults.series.lines, { fill: 0.4 })
-        },
-        xaxis: $.extend({}, plotOptions.defaults.xaxis, {
-          // Generate a tick for the beggining of each week 
-          ticks: $.map(new Array(charts.WEEKS_IN_MONTH - 1), function (_, k) {
-            var x = (k + 1) * 7 / resolution;
-            return [[x, (config.weekLabel || 'week') + ' ' + (k + 1).toString()]];
-          }),
-          min: 0,
-          max: data.length
-        }),
-        yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-          ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
-          min: miny - 0.00 * dy,
-          max: maxy + 0.10 * dy
-        }),
-        grid: plotOptions.defaults.grid,
-        legend: { show: false }
+      var formatter = locale ? function (t) {
+        return moment(t).locale(locale).format('dd D MMM');
+      } : function (t) {
+        return moment(t).format('dd D MMM');
       };
 
-      return $.plot($placeholder, [{
-        data: $.map(data, function (v) {
-          return v.value ? [[v.id, v.value]] : null;
-        }),
-        label: formatLabel(M),
-        color: plotOptions.defaults.colors[0]
-      }], options);
+      var tickFilter = function tickFilter(t) {
+        return moment(t).diff(moment(t).startOf('isoweek'), 'day') == 0;
+      };
+
+      config = $.extend(true, {
+        lines: {
+          fill: null
+        },
+        xaxis: {
+          //tickSize: 7, // 1 tick every tickSize datapoints (days)
+          tickFilter: tickFilter,
+          formatter: formatter
+        }
+      }, config);
+
+      return plotAsLines($placeholder, series, config);
     },
 
-    plotForYear: function plotForYear($placeholder, data, config) {
-      if (!data || data.length == 0) return null;
+    plotForYear: function plotForYear($placeholder, series, config) {
+      var locale = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
 
-      var M = data[0].constructor;
-      var ry = M.getRange(data);
-      var miny = ry[0],
-          maxy = ry[1],
-          dy = maxy - miny;
-
-      config = $.extend({ bars: {}, xaxis: {}, yaxis: {} }, config || {});
-      var resolution = config.resolution || 1; // months
-      var month_names = moment.monthsShort();
-
-      var options = {
-        series: {
-          points: $.extend({ show: true }, plotOptions.defaults.series.points),
-          shadowSize: 0,
-          lines: $.extend({ show: true }, plotOptions.defaults.series.lines, { fill: 0.4 })
-        },
-        xaxis: $.extend({}, plotOptions.defaults.xaxis, {
-          ticks: $.map(data, function (v, i) {
-            return [[v.id, month_names[i * resolution]]];
-          }),
-          min: 0,
-          max: data.length
-        }),
-        yaxis: $.extend({}, plotOptions.defaults.yaxis, {
-          ticks: charts.generateTicks(ry, 4, config.yaxis.tickUnit),
-          min: miny - 0.00 * dy,
-          max: maxy + 0.10 * dy
-        }),
-        grid: plotOptions.defaults.grid,
-        legend: { show: false }
-
+      var formatter = locale ? function (t) {
+        return moment(t).locale(locale).format('MMM');
+      } : function (t) {
+        return moment(t).format('MMM');
       };
 
-      return $.plot($placeholder, [{
-        data: $.map(data, function (v) {
-          return v.value ? [[v.id, v.value]] : null;
-        }),
-        label: formatLabel(M),
-        color: plotOptions.defaults.colors[0]
-      }], options);
+      config = $.extend(true, {
+        lines: {
+          fill: null
+        },
+        xaxis: {
+          tickSize: 1, // 1 tick every tickSize datapoints (month)
+          formatter: formatter
+        }
+      }, config);
+
+      return plotAsLines($placeholder, series, config);
     }
   };
 }();
@@ -1105,7 +1203,12 @@ $.extend(daiad.model, function () {
 
       if (!(maxy > 0)) console.warn('Expected positive maximum value (' + maxy + ')');
       return [.0, maxy];
+    },
+
+    formatLabel: function formatLabel() {
+      return this.value.title + ' (' + this.value.unit + ')';
     }
+
   });
 
   // Set default method for getting the range of values (override in "derived" objects)

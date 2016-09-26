@@ -33,15 +33,19 @@ module.exports = function(grunt) {
       options: {
         banner: '/*! <%= pkg.name %> <%= grunt.template.today("yyyy-mm-dd") %> */\n'
       },
-      charts: {
+      "charts": {
         files: { 
           'build/daiad-charts.min.js': ['build/daiad-charts.js'],
         },
       },
-      moment: {
+      "vendor-flot-orderBars": {
+        files: {
+          'build/flot-orderBars.min.js': ['build/flot-orderBars.js'],
+        }
+      },
+      "vendor-moment": {
         files: {
           'build/moment-localized.min.js': ['build/moment-localized.js'],
-          //'build/moment.min.js': ['build/moment.js'],
         }
       }
     },
@@ -52,14 +56,19 @@ module.exports = function(grunt) {
       },
       "charts": {
         options: {
-          external: ['jquery', 'jquery-flot', 'moment'],
+          external: ['jquery', 'moment'],
         },
         files: {
           'build/daiad-charts.js': ['src/js/main.js'],
           'build/example.js': ['src/js/example.js']
         },
       },
-      "moment": {
+      "vendor-flot-orderBars": {
+        files: {
+          'build/flot-orderBars.js': ['vendor/flot-orderBars/js/jquery.flot.orderBars.js'],
+        }
+      },
+      "vendor-moment": {
         options: {
           require: ['moment'],
         },
@@ -98,6 +107,13 @@ module.exports = function(grunt) {
             filter: 'isFile',
             cwd: 'build/',
             src: 'moment*.js',
+            dest: prefix,
+          },
+          {
+            expand: true,
+            filter: 'isFile',
+            cwd: 'build/',
+            src: 'flot-orderBars*.js',
             dest: prefix,
           },
           {

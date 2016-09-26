@@ -2,6 +2,8 @@
 (function (global){
 'use strict';
 
+var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 var $ = (typeof window !== "undefined" ? window['jQuery'] : typeof global !== "undefined" ? global['jQuery'] : null);
 var moment = require('moment');
 
@@ -24,8 +26,6 @@ $(document).ready(function () {
 
 $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
 
-  var data = null;
-
   //
   // Meter - Day
   //
@@ -42,29 +42,37 @@ $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
     });
   }
 
-  var levels = [{
-    range: [50, 80],
-    color: '#6976EB',
-    description: 'Low'
-  }, {
-    range: [80, 120],
-    color: '#3843A5',
-    description: 'Mid'
-  }, {
-    range: [120, 160],
-    color: '#2D3580',
-    description: 'High'
-  }, {
-    range: [160, 200],
-    color: '#2F3565',
-    description: 'Very High'
+  var data1 = getMeterDataForDay(50, 200, 1);
+  var data2 = getMeterDataForDay(50, 200, 1);
+  var data3 = getMeterDataForDay(50, 200, 1);
+  var series = [
+  // seriers #2
+  {
+    data: data1,
+    levels: [{
+      range: [50, 80],
+      color: '#6976EB',
+      description: 'Low'
+    }, {
+      range: [80, 120],
+      color: '#3843A5',
+      description: 'Mid'
+    }, {
+      range: [120, 160],
+      color: '#2D3580',
+      description: 'High'
+    }, {
+      range: [160, 200],
+      color: '#2F3565',
+      description: 'Very High'
+    }]
+  },
+  // series #2
+  {
+    data: data2,
+    levels: null
   }];
-
-  data = getMeterDataForDay(50, 200, 1);
-  charts.meter.plotForDay($('#meter-chart-day-view'), data, {
-    resolution: 1, // hours
-    levels: levels
-  });
+  charts.meter.plotForDay($('#meter-chart-day-view'), series);
 
   //
   // Meter - Week
@@ -82,11 +90,10 @@ $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
     });
   }
 
-  data = getMeterDataForWeek(50, 200, 1);
-  charts.meter.plotForWeek($('#meter-chart-week-view'), data, {
-    resolution: 1, // days
-    levels: null
-  });
+  var data1 = getMeterDataForWeek(50, 200, 1);
+  var data2 = getMeterDataForWeek(50, 200, 1);
+  var series = [{ data: data1 }];
+  charts.meter.plotForWeek($('#meter-chart-week-view'), series);
 
   //
   // Meter - Month
@@ -104,10 +111,38 @@ $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
     });
   }
 
-  data = getMeterDataForMonth(50, 200, 2);
-  charts.meter.plotForMonth($('#meter-chart-month-view'), data, {
-    resolution: 2, // days
-    weekLabel: 'W' });
+  var data1 = getMeterDataForMonth(50, 200, 1);
+  var data2 = getMeterDataForMonth(50, 200, 1);
+  var series = [{
+    data: data1,
+    fill: 0.33
+  }, {
+    data: data2,
+    fill: null
+  }];
+  charts.meter.plotForMonth($('#meter-chart-month-view'), series);
+
+  //
+  // Meter - Month (with forecast)
+  //
+
+  // Simulate K forecasted data points
+  var K = 5,
+      N = data1.length - K;
+
+  var series = [{
+    // actual data measurements
+    data: data1.map(function (p, i) {
+      return i < N ? p : _extends({}, p, { value: null });
+    }),
+    fill: 0.33
+  }, {
+    // forecast
+    data: data1.slice(-(K + 1)),
+    fill: null
+  }];
+
+  charts.meter.plotForMonth($('#meter-chart-month-view-1'), series);
 
   //
   // Meter - Year
@@ -125,9 +160,13 @@ $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
     });
   }
 
-  data = getMeterDataForYear(50, 200, 1);
-  charts.meter.plotForYear($('#meter-chart-year-view'), data, {
-    resolution: 1 });
+  var data1 = getMeterDataForYear(50, 200, 1);
+  var data2 = getMeterDataForYear(50, 200, 1);
+  var series = [{
+    data: data1,
+    fill: 0.33
+  }];
+  charts.meter.plotForYear($('#meter-chart-year-view'), series);
 });
 
 $('[href="#b1-charts-tab"]').one('shown.bs.tab', function () {

@@ -59,27 +59,6 @@ $.extend(daiad.charts, {
   //
   // Utilities
   //
-
-  formatLabel: function(M, level)
-  {
-    var s = M.value.title + ' (' + M.value.unit + ')';
-    if (level && level.description)
-      s += ' (' + level.description + ')'; 
-    return s;
-  },
-
-  filterForData: function(level)
-  {
-    var y0 = level.range[0], y1 = level.range[1];
-    return function (m) {
-      return (m.value != null && (m.value >= y0) && (m.value < y1)) ? [[m.id, m.value]] : null;
-    }
-  },
-  
-  getDefaultLevel: function(y0, y1, color)
-  {
-    return {range: [y0, y1 + 1], color: color};
-  },
   
   generateTicks: function (r, n, m, formatter, offset) {
     // Generate approx n ticks in range r. Use only multiples of m.
@@ -96,8 +75,6 @@ $.extend(daiad.charts, {
            m = 0.1 * m;
       }
     }
-     
-    console.debug('generateTicks: Using m=' + m)
 
     // Compute x0, step, n1 (actual number of ticks)
     if (dx > 0) {

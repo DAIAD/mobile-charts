@@ -14,8 +14,6 @@ charts.b1 = (function () {
     ['estimated-data', '#AAAEB1'],
   ]);
   
-  var formatLabel = charts.formatLabel;
-  
   return {
     plotForEvent: function ($placeholder, data, config)
     {
@@ -78,7 +76,7 @@ charts.b1 = (function () {
         data: $.map(data, function(v) {
           return (v.value) ? [[v.id, v.value]] : null;
         }),
-        label: formatLabel(M),
+        label: M.formatLabel(),
         color: plotOptions.defaults.colors[0],
       }], options);
     },
@@ -132,7 +130,7 @@ charts.b1 = (function () {
         data: $.map(data, function(v) {
           return (v.value) ? [[v.timestamp.getTime(), v.value]] : null;
         }),
-        label: formatLabel(M),
+        label: M.formatLabel(),
         color: plotOptions.defaults.colors[0],
       }], options);
        
@@ -199,7 +197,7 @@ charts.b1 = (function () {
         var points1 = $.map(data1, function (m, i) {return [[i, m.value]]});
         plotdata.push({
           data: points1,
-          label: formatLabel(M1),
+          label: M1.formatLabel(),
           color: plotOptions.defaults.colormap.get('measured-data'),
         });
       }
@@ -218,7 +216,7 @@ charts.b1 = (function () {
           span = (j == n1)? (n2 - i) : (j - i);
           plotdata.push({
             data: [[i, data2[i].value]],
-            label: formatLabel(M2),
+            label: M2.formatLabel(),
             color: plotOptions.defaults.colormap.get('estimated-data'),
             bars: {barWidth: bar_width_ratio + span - 1},
           })
@@ -266,7 +264,7 @@ charts.b1 = (function () {
       
       return $.plot($placeholder, [{
         data: $.map(data, function(v) {return (v.value) ? [[v.id, v.value]] : null}),
-        label: formatLabel(M),
+        label: M.formatLabel(),
         color: plotOptions.defaults.colors[0],
       }], options);
     },
@@ -308,7 +306,7 @@ charts.b1 = (function () {
       
       return $.plot($placeholder, [{
         data: $.map(data, function(v) {return (v.value) ? [[v.id, v.value]] : null}),
-        label: formatLabel(M),
+        label: M.formatLabel(),
         color: plotOptions.defaults.colors[0],
       }], options);
     },
