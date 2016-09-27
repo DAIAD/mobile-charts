@@ -31,7 +31,7 @@ $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
     return $.map(new Array(num_points), function(_, i) {
       var t = t0.clone().add(i * resolution, 'hour');
       var val = miny + Math.random() * dy
-      return new Measurement(i, t.toDate(), val);
+      return new Measurement(-1, t.toDate(), val);
     });
   }
 
@@ -68,7 +68,7 @@ $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
     // series #2
     {
       data: data2,
-      levels: null,
+     levels: null,
     },
   ];
   charts.meter.plotForDay($('#meter-chart-day-view'), series);
@@ -84,7 +84,7 @@ $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
     return $.map(new Array(num_points), function(_, i) {
       var t = t0.clone().add(i * resolution, 'day');
       var val = miny + Math.random() * dy
-      return new Measurement(i, t.toDate(), val);
+      return new Measurement(-1, t.toDate(), val);
     });
   }
 
@@ -107,7 +107,7 @@ $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
     return $.map(new Array(num_points), function(_, i) {
       var t = t0.clone().add(i * resolution, 'day');
       var val = miny + Math.random() * dy
-      return new Measurement(i, t.toDate(), val);
+      return new Measurement(-1, t.toDate(), val);
     });
   }
   
@@ -158,7 +158,7 @@ $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
     return $.map(new Array(num_points), function(_, i) {
       var t = t0.clone().add(i * resolution, 'month');
       var val = miny + Math.random() * dy
-      return new Measurement(i, t.toDate(), val);
+      return new Measurement(-1, t.toDate(), val);
     });
   }
   
