@@ -212,6 +212,7 @@ charts.meter = (function () {
         lines: $.extend({}, plotOptions.defaults.series.lines, {
           show: true,
         }),
+        dashes: $.extend({}, plotOptions.defaults.series.dashes),
       },
       xaxis: $.extend({}, plotOptions.defaults.xaxis, {
         ticks: tickPoints
@@ -234,7 +235,11 @@ charts.meter = (function () {
       label: M.formatLabel(),
       color: s.color || plotOptions.defaults.colors[i],
       lines: {
+        show: (s.line == null || s.line == 'solid'),
         fill: s.fill === undefined?  config.lines.fill : s.fill,  
+      },
+      dashes: {
+        show: (s.line == 'dashed'),
       },
     }));
       

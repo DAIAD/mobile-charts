@@ -24,6 +24,9 @@ $.extend(daiad.charts, {
           lineWidth: 1,
           fill: 0.8,
         },
+        dashes: {
+          lineWidth: 1,
+        },
       },
       bars: {
         align: 'left',

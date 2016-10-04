@@ -142,7 +142,8 @@ $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
     // forecast
     data: data1.slice(-(K + 1)),
     fill: null,
-    color: '#aaa'
+    color: '#aaa',
+    line: 'dashed'
   }];
 
   charts.meter.plotForMonth($('#meter-chart-month-view-1'), series);

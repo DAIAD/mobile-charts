@@ -337,6 +337,9 @@ $.extend(daiad.charts, {
         bars: {
           lineWidth: 1,
           fill: 0.8
+        },
+        dashes: {
+          lineWidth: 1
         }
       },
       bars: {
@@ -1081,7 +1084,8 @@ charts.meter = function () {
         shadowSize: 0,
         lines: $.extend({}, plotOptions.defaults.series.lines, {
           show: true
-        })
+        }),
+        dashes: $.extend({}, plotOptions.defaults.series.dashes)
       },
       xaxis: $.extend({}, plotOptions.defaults.xaxis, {
         ticks: tickPoints.map(function (_ref8) {
@@ -1113,7 +1117,11 @@ charts.meter = function () {
         label: M.formatLabel(),
         color: s.color || plotOptions.defaults.colors[i],
         lines: {
+          show: s.line == null || s.line == 'solid',
           fill: s.fill === undefined ? config.lines.fill : s.fill
+        },
+        dashes: {
+          show: s.line == 'dashed'
         }
       };
     });

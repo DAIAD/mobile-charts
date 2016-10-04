@@ -38,9 +38,9 @@ module.exports = function(grunt) {
           'build/daiad-charts.min.js': ['build/daiad-charts.js'],
         },
       },
-      "vendor-flot-orderBars": {
+      "vendor-flot-plugins": {
         files: {
-          'build/flot-orderBars.min.js': ['build/flot-orderBars.js'],
+          'build/flot-plugins.min.js': ['build/flot-orderBars.js', 'build/flot-dashes.js'],
         }
       },
       "vendor-moment": {
@@ -66,6 +66,11 @@ module.exports = function(grunt) {
       "vendor-flot-orderBars": {
         files: {
           'build/flot-orderBars.js': ['vendor/flot-orderBars/js/jquery.flot.orderBars.js'],
+        }
+      },
+      "vendor-flot-dashes": {
+        files: {
+          'build/flot-dashes.js': ['vendor/flot-dashes/jquery.flot.dashes.js'],
         }
       },
       "vendor-moment": {
@@ -113,7 +118,21 @@ module.exports = function(grunt) {
             expand: true,
             filter: 'isFile',
             cwd: 'build/',
-            src: 'flot-orderBars*.js',
+            src: 'flot-orderBars.js',
+            dest: prefix,
+          },          
+          {
+            expand: true,
+            filter: 'isFile',
+            cwd: 'build/',
+            src: 'flot-dashes.js',
+            dest: prefix,
+          },
+          {
+            expand: true,
+            filter: 'isFile',
+            cwd: 'build/',
+            src: 'flot-plugins.min.js',
             dest: prefix,
           },
           {

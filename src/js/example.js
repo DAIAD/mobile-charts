@@ -146,6 +146,7 @@ $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
       data: data1.slice(-(K + 1)),
       fill: null,
       color: '#aaa',
+      line: 'dashed',
     },
   ];
  
