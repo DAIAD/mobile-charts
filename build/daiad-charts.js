@@ -991,7 +991,7 @@ charts.meter = function () {
       });else return {
         data: s.data.map(getDataPoint),
         label: M.formatLabel(),
-        color: plotOptions.defaults.colors[i],
+        color: s.color || plotOptions.defaults.colors[i],
         bars: { order: i }
       };
     });
@@ -1111,7 +1111,7 @@ charts.meter = function () {
           return t.value;
         }).map(getDataPoint),
         label: M.formatLabel(),
-        color: plotOptions.defaults.colors[i],
+        color: s.color || plotOptions.defaults.colors[i],
         lines: {
           fill: s.fill === undefined ? config.lines.fill : s.fill
         }

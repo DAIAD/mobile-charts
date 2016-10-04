@@ -39,7 +39,7 @@ $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
   var data2 = getMeterDataForDay(50, 200, 1);
   var data3 = getMeterDataForDay(50, 200, 1);
   var series = [
-    // seriers #2
+    // seriers #1
     {
       data: data1,
       levels: [
@@ -68,7 +68,8 @@ $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
     // series #2
     {
       data: data2,
-     levels: null,
+      levels: null,
+      color: null, // or '#D84116',
     },
   ];
   charts.meter.plotForDay($('#meter-chart-day-view'), series);
@@ -116,10 +117,12 @@ $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
   var series = [
     {
       data: data1,
+      color: null,
       fill: 0.33,
     },
     {
       data: data2,
+      color: '#D84116',
       fill: null,
     },
   ];
@@ -142,6 +145,7 @@ $('[href="#meter-charts-tab"]').one('shown.bs.tab', function () {
       // forecast
       data: data1.slice(-(K + 1)),
       fill: null,
+      color: '#aaa',
     },
   ];
  
