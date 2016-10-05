@@ -1,6 +1,0 @@
-[submodule "vendor/flot-orderBars"]
-	path = vendor/flot-orderBars
-	url = https://github.com/emmerich/flot-orderBars
-[submodule "vendor/flot-dashes"]
-	path = vendor/flot-dashes
-	url = https://github.com/cquartier/flot.dashes
