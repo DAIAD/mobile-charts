@@ -28,6 +28,18 @@ module.exports = function(grunt) {
       src: ['src/js/**.js'],
       }
     },
+    
+    jsdoc: {
+      "charts": {
+        src: [
+          'src/js/*.js',
+          '!src/js/example.js',
+        ],
+        options: {
+          destination: 'jsdoc',
+        }
+      },
+    },
 
     uglify: {
       options: {
@@ -163,7 +175,7 @@ module.exports = function(grunt) {
     watch: {
       charts: {
         files: ['src/js/**.js', 'src/html/**.html', 'assets/style.css'],
-        tasks: ['build', 'deploy'],
+        tasks: ['build', 'jsdoc', 'deploy'],
       },
     },
   
@@ -175,6 +187,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-jsdoc');
   grunt.loadNpmTasks('grunt-browserify');
 
   grunt.registerTask('build', ['browserify', 'uglify']);

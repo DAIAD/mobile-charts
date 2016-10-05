@@ -1,3 +1,8 @@
+/**
+ *
+ * @module charts
+ */ 
+
 var daiad = require('./index')
 
 daiad.charts || (daiad.charts = {});
