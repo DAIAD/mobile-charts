@@ -43,7 +43,7 @@ charts.comparison = module.exports = {
         ticks: [],
         // We plot horizontally, so these boundaries are for X axis!
         //min: miny,
-        max: maxy + 0.40 * dy,
+        max: maxy + 0.15 * dy,
       },
       yaxis: {
         ticks: [], 
@@ -57,8 +57,8 @@ charts.comparison = module.exports = {
       },
     };
     
-    var plotdata = $.map(data, function (v, i) {
-      var x = v[0], y = v[1], cx = config.points.get(x);
+    var plotdata = $.map(data, function ([x, y], i) {
+      var cx = config.points.get(x);
       return {
         data: [[y, i]],
         color: cx.color,
@@ -68,46 +68,48 @@ charts.comparison = module.exports = {
     
     var plot = $.plot($placeholder, plotdata, options);
     
-    $.each(data, function (i, v) {
-      var x = v[0], 
-        y = v[1],
+    $.each(data, function (i, [x, y]) {
+      var
         cx = config.points.get(x),
         o0 = plot.pointOffset({x: 0, y: i}),
         o1 = plot.pointOffset({x: y, y: i}),
         o2 = plot.pointOffset({x: y, y: i - (config.bars.widthRatio * 1)});
       
-      var style_settings = {
-        'top': o1.top.toString() + 'px',
-        'left': o1.left.toString() + 'px',
-        'height': (o2.top - o1.top).toString() + 'px',
-        'line-height': (o2.top - o1.top - 4).toString() + 'px',
-        'padding-left': config.labels.paddingX.toString() + 'px',
-        'padding-right': config.labels.paddingX.toString() + 'px',
+      var style = {
+        top: o1.top.toString() + 'px',
+        left: o1.left.toString() + 'px',
+        height: (o2.top - o1.top).toString() + 'px',
+        lineHeight: (o2.top - o1.top - 4).toString() + 'px',
+        paddingTop: '0px',
+        paddingBottom: '0px',
+        paddingLeft: config.labels.paddingX.toString() + 'px',
+        paddingRight: config.labels.paddingX.toString() + 'px',
+        overflowX: 'hidden',
       };
       
       $('<div>')
         .addClass('value-label')
         .addClass('value')
         .text(y.toFixed(0))
-        .css(style_settings)
+        .css(style)
         .appendTo($placeholder);
       
       $('<div>')
         .addClass('value-label')
         .addClass('label')
         .text(cx.label)
-        .css($.extend({}, style_settings, {
-          'width': (o1.left - o0.left - 2 * (config.labels.marginX + config.labels.paddingX))
-            .toString() + 'px',
-          'left': (o0.left + config.labels.marginX).toString() + 'px',
-          'text-align': config.labels.align,
-          'color': cx.labelColor,
+        .css($.extend({}, style, {
+          width: (o1.left - o0.left - 2 * (config.labels.marginX)).toString() + 'px',
+          left: (o0.left + config.labels.marginX).toString() + 'px',
+          textAlign: config.labels.align,
+          color: cx.labelColor,
         }))
         .appendTo($placeholder);
     })
     
     return plot;
   },
+  
   plotBarsWithMarkers: function ($placeholder, data, config)
   {
     // Adjust constants to agree with stylesheet ".value-marker" rules!
@@ -235,6 +237,7 @@ charts.comparison = module.exports = {
   
     return plot1;
   },
+  
   plotBarsAsPairs: function ($placeholder, data1, data2, config)
   {
     var name_comparator = function (a, b) {return a[0].localeCompare(b[0])},

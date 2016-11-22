@@ -324,7 +324,7 @@ $('[href="#comparison-charts-tab"]').one('shown.bs.tab', function () {
 
   // Comparison - Labels
 
-  data = [['best', 110], ['avg', 150], ['me', 180]];
+  data = [['best', 200], ['avg', 2200], ['me', 4501]];
   config = {
     // Provide labels for data points
     points: new Map([['me', {
@@ -342,8 +342,8 @@ $('[href="#comparison-charts-tab"]').one('shown.bs.tab', function () {
     }]]),
     // Style labels
     labels: {
-      paddingX: 8,
-      marginX: 8,
+      paddingX: 4,
+      marginX: 4,
       align: 'right'
     }
   };
