@@ -321,7 +321,7 @@ $('[href="#comparison-charts-tab"]').one('shown.bs.tab', function () {
   // Comparison - Labels
 
   data = [
-    ['best', 450.4],
+    ['best', 406.4],
     ['avg', 2200.42],
     ['me', 4501.61],
   ];
@@ -346,12 +346,14 @@ $('[href="#comparison-charts-tab"]').one('shown.bs.tab', function () {
     ]),
     // Style labels
     labels: {
-      paddingX: 4,
+      paddingX: 6,
       marginX: 2,
       align: 'right',
     },
     // Set decimal point precision
     precision: 1,
+    // Set unit for displayed values
+    unit: 'm³',
   };
   charts.comparison.plotBarsWithLabels($('#comparison-chart-labels'), data, config);
 

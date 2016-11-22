@@ -24,6 +24,12 @@ body {
 .chart .value-label.value {
     font-size:1.4em;
 }
+.chart .value-label.value .unit {
+    padding: 0px 3px;
+    font-size: 1em;
+    color: #777;
+    vertical-align: baseline;
+}
 
 .chart .value-label.label {
     font-size:1.4em;

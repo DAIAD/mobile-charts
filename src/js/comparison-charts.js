@@ -23,7 +23,7 @@ charts.comparison = module.exports = {
       dy = maxy - miny; 
     
     config = $.extend(
-      {points: {}, labels: {}, bars: {}, precision: 1},
+      {points: {}, labels: {}, bars: {}, precision: 1, unit: null},
       (config || {}));
     config.labels = $.extend({
       paddingX: LABEL_X_PADDING,
@@ -46,7 +46,7 @@ charts.comparison = module.exports = {
         ticks: [],
         // We plot horizontally, so these boundaries are for X axis!
         //min: miny,
-        max: maxy + 0.10 * dy,
+        max: maxy + 0.18 * dy,
       },
       yaxis: {
         ticks: [], 
@@ -70,7 +70,7 @@ charts.comparison = module.exports = {
     });
     
     var plot = $.plot($placeholder, plotdata, options);
-    
+
     $.each(data, function (i, [x, y]) {
       var
         cx = config.points.get(x),
@@ -90,6 +90,7 @@ charts.comparison = module.exports = {
         overflowX: 'hidden',
       };
       
+      // Create a label for the value, append to plot
       var $value = $('<div>')
         .addClass('value-label')
         .addClass('value')
@@ -97,6 +98,7 @@ charts.comparison = module.exports = {
         .css(style)
         .appendTo($placeholder);
       
+      // Create a label for the description, append to plot
       var $label = $('<div>')
         .addClass('value-label')
         .addClass('label')
@@ -108,9 +110,17 @@ charts.comparison = module.exports = {
           color: cx.labelColor,
         }))
         .appendTo($placeholder);
-        
+      
+      // Check if units must be displayed along with values
+      if (config.unit != null) {
+        $('<span>')
+          .addClass("unit")
+          .text(config.unit.toString())
+          .appendTo($value);
+      }
+      
+      // Check if label overflows (move outside if so)
       if (parseInt($label.prop('offsetWidth')) < parseInt($label.prop('scrollWidth'))) {
-        // The label overflows (value too small): move outside of bar
         window.setTimeout(function () {
           $label.css({
             width: '', // no restriction
