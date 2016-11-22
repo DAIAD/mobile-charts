@@ -468,16 +468,15 @@ charts.comparison = module.exports = {
         maxy = Math.max.apply(null, $.map(data, value_getter)),
         dy = maxy - miny;
 
-    config = $.extend({ points: {}, labels: {}, bars: {} }, config || {});
+    config = $.extend({ points: {}, labels: {}, bars: {}, precision: 1 }, config || {});
     config.labels = $.extend({
       paddingX: LABEL_X_PADDING,
       marginX: LABEL_X_MARGIN,
       align: 'right'
     }, config.labels);
-    config.bars = $.extend({ widthRatio: 0.85 }, config.bars);
+    config.bars = $.extend({ widthRatio: 0.80 }, config.bars);
 
-    var Y_DC = 0.04 * dy; // for presentation purposes for small values
-
+    var Y_DC = 0.01 * dy; // for presentation purposes for small values
     var transform = function transform(y) {
       return y + Y_DC;
     };
@@ -546,14 +545,25 @@ charts.comparison = module.exports = {
         overflowX: 'hidden'
       };
 
-      $('<div>').addClass('value-label').addClass('value').text(y.toFixed(0)).css(style).appendTo($placeholder);
+      var $value = $('<div>').addClass('value-label').addClass('value').text(y.toFixed(config.precision)).css(style).appendTo($placeholder);
 
-      $('<div>').addClass('value-label').addClass('label').text(cx.label).css($.extend({}, style, {
+      var $label = $('<div>').addClass('value-label').addClass('label').text(cx.label).css($.extend({}, style, {
         width: (o1.left - o0.left - 2 * config.labels.marginX).toString() + 'px',
         left: (o0.left + config.labels.marginX).toString() + 'px',
         textAlign: config.labels.align,
         color: cx.labelColor
       })).appendTo($placeholder);
+
+      if (parseInt($label.prop('offsetWidth')) < parseInt($label.prop('scrollWidth'))) {
+        // The label overflows (value too small): move outside of bar
+        window.setTimeout(function () {
+          $label.css({
+            width: '', // no restriction
+            color: 'inherit', // revert to basic grid color
+            left: (o1.left + $value.outerWidth() + 2 * config.labels.marginX).toString() + 'px'
+          });
+        }, 0);
+      }
     });
 
     return plot;

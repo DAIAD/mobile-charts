@@ -324,7 +324,7 @@ $('[href="#comparison-charts-tab"]').one('shown.bs.tab', function () {
 
   // Comparison - Labels
 
-  data = [['best', 200], ['avg', 2200], ['me', 4501]];
+  data = [['best', 450.4], ['avg', 2200.42], ['me', 4501.61]];
   config = {
     // Provide labels for data points
     points: new Map([['me', {
@@ -345,7 +345,9 @@ $('[href="#comparison-charts-tab"]').one('shown.bs.tab', function () {
       paddingX: 4,
       marginX: 2,
       align: 'right'
-    }
+    },
+    // Set decimal point precision
+    precision: 1
   };
   charts.comparison.plotBarsWithLabels($('#comparison-chart-labels'), data, config);
 
