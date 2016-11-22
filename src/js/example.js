@@ -347,7 +347,7 @@ $('[href="#comparison-charts-tab"]').one('shown.bs.tab', function () {
     // Style labels
     labels: {
       paddingX: 4,
-      marginX: 4,
+      marginX: 2,
       align: 'right',
     },
   };

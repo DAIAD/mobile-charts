@@ -32,6 +32,10 @@ charts.comparison = module.exports = {
     }, config.labels);
     config.bars = $.extend({widthRatio: 0.85}, config.bars);
     
+    var Y_DC = 0.04 * dy; // for presentation purposes for small values
+
+    var transform = (y) => (y + Y_DC);
+
     var options = {
       series: {
         points: {show: false},
@@ -43,7 +47,7 @@ charts.comparison = module.exports = {
         ticks: [],
         // We plot horizontally, so these boundaries are for X axis!
         //min: miny,
-        max: maxy + 0.15 * dy,
+        max: maxy + 0.10 * dy,
       },
       yaxis: {
         ticks: [], 
@@ -60,7 +64,7 @@ charts.comparison = module.exports = {
     var plotdata = $.map(data, function ([x, y], i) {
       var cx = config.points.get(x);
       return {
-        data: [[y, i]],
+        data: [[transform(y), i]],
         color: cx.color,
         label: cx.label,
       }
@@ -72,8 +76,8 @@ charts.comparison = module.exports = {
       var
         cx = config.points.get(x),
         o0 = plot.pointOffset({x: 0, y: i}),
-        o1 = plot.pointOffset({x: y, y: i}),
-        o2 = plot.pointOffset({x: y, y: i - (config.bars.widthRatio * 1)});
+        o1 = plot.pointOffset({x: transform(y), y: i}),
+        o2 = plot.pointOffset({x: transform(y), y: i - (config.bars.widthRatio * 1)});
       
       var style = {
         top: o1.top.toString() + 'px',
