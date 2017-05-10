@@ -1298,9 +1298,9 @@ charts.meter = module.exports = {
     var locale = arguments.length <= 3 || arguments[3] === undefined ? null : arguments[3];
 
     var formatter = locale ? function (t) {
-      return moment(t).locale(locale).format('dd D MMM');
+      return moment(t).locale(locale).format('D MMM');
     } : function (t) {
-      return moment(t).format('dd D MMM');
+      return moment(t).format('D MMM');
     };
 
     var tickFilter = function tickFilter(t) {

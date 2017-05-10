@@ -367,8 +367,8 @@ charts.meter = module.exports = {
   plotForMonth: function ($placeholder, series, config, locale=null)
   {
     var formatter = locale?
-      (t) => (moment(t).locale(locale).format('dd D MMM')):
-      (t) => (moment(t).format('dd D MMM'));
+      (t) => (moment(t).locale(locale).format('D MMM')):
+      (t) => (moment(t).format('D MMM'));
     
     var tickFilter = (t) => (
       moment(t).diff(moment(t).startOf('isoweek'), 'day') == 0
